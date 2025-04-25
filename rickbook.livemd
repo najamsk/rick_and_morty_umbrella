@@ -1,0 +1,99 @@
+# Untitled notebook
+
+```elixir
+Mix.install([
+  :httpoison,
+  {:jason, "~> 1.4"}
+])
+
+```
+
+## Section
+
+```elixir
+defmodule RickAndMortyFetcher do
+  @api_url "https://rickandmortyapi.com/api/character"
+
+  def fetch_all_characters do
+    fetch_all_pages(@api_url, [])
+  end
+
+  defp fetch_all_pages(nil, acc), do: acc
+
+  defp fetch_all_pages(url, acc) do
+    IO.puts("Fetching: #{url}")
+
+
+    case HTTPoison.get(url, [], recv_timeout: 10_000) do
+      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
+        %{"info" => %{"next" => next_url}, "results" => results} = Jason.decode!(body)
+        filtered_results =
+          results
+          |> Enum.map(fn character ->
+            Map.drop(character, ["location", "episode"])
+          end)
+        # cleaned_response = Map.put(response, "results", filtered_results)
+        # IO.inspect(cleaned_response)
+
+
+
+        fetch_all_pages(next_url, acc ++ filtered_results)
+
+      {:ok, %HTTPoison.Response{status_code: code}} ->
+        IO.puts("Failed with HTTP code: #{code}")
+        acc
+
+      {:error, reason} ->
+        IO.inspect(reason, label: "HTTP Error")
+        acc
+    
+    end
+  end
+
+  def save_to_file(characters, file \\ "characters.json") do
+    IO.puts("Saved to: #{Path.expand(file)}")
+
+    json = Jason.encode_to_iodata!(characters)
+    File.write!(file, json)
+    IO.puts("Saved #{length(characters)} characters to #{file}")
+  end
+end
+
+```
+
+```elixir
+characters = RickAndMortyFetcher.fetch_all_characters()
+characters
+```
+
+```elixir
+RickAndMortyFetcher.save_to_file(characters)
+```
+
+```elixir
+mine = [1,2,4] ++ [5,6,7]
+Enum.reverse(mine)
+```
+
+```elixir
+case HTTPoison.get("https://rickandmortyapi.com/api/character", [], recv_timeout: 10_000) do
+      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
+        %{"info" => %{"next" => next_url}, "results" => results} = Jason.decode!(body)
+
+       
+  filtered_results =
+  results
+  |> Enum.map(fn character ->
+    Map.drop(character, ["location", "episode"])
+  end)
+       dbg(filtered_results)
+
+      {:ok, %HTTPoison.Response{status_code: code}} ->
+        IO.puts("Failed with HTTP code: #{code}")
+        []
+
+      {:error, reason} ->
+        IO.inspect(reason, label: "HTTP Error")
+        []
+    end
+```
