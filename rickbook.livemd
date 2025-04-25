@@ -1,4 +1,4 @@
-# Untitled notebook
+# Rick umbrella
 
 ```elixir
 Mix.install([

@@ -6,7 +6,7 @@ defmodule FrontendWeb.PageDetailsLive do
   def mount(%{"id" => id}, _session, socket) do
     # IO.inspect(params, label: "PageDetailsLive mount params")
     if connected?(socket), do: send(self(), {:load_character, id})
-    {:ok, assign(socket, character: %{}, error: nil)}
+    {:ok, assign(socket, page_title: "Character Details", character: %{}, error: nil)}
   end
 
   def handle_info({:load_character, id}, socket) do

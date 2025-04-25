@@ -6,7 +6,15 @@ defmodule FrontendWeb.PageLive do
 
   def mount(_params, _session, socket) do
     if connected?(socket), do: send(self(), :load_characters)
-    {:ok, assign(socket, characters: [], error: nil, query: "", species_list: [])}
+
+    {:ok,
+     assign(socket,
+       page_title: "Rick & Morty Characters!",
+       characters: [],
+       error: nil,
+       query: "",
+       species_list: []
+     )}
   end
 
   def handle_info(:load_characters, socket) do
