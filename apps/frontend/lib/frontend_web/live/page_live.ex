@@ -27,8 +27,7 @@ defmodule FrontendWeb.PageLive do
 
   def render(assigns) do
     ~H"""
-    <h1>Rick and Morty Characters</h1>
-    <form phx-change="search" class="space-y-4 mb-4">
+    <form phx-change="search" class="space-y-4 mb-4 bg-gray-800 shadow-sm p-4 rounded-lg">
       <input
         type="text"
         name="query"
