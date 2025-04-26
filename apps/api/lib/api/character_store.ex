@@ -8,8 +8,6 @@ defmodule Api.CharacterStore do
   @characters_key :characters_map_cache
 
   def load_data do
-    IO.puts("Loading character data...")
-
     characters =
       Application.app_dir(:api, "priv/characters.json")
       |> File.read!()
