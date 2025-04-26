@@ -54,14 +54,12 @@ defmodule FrontendWeb.PageLive do
 
   @impl true
   def handle_info(:load_search_options, socket) do
-    IO.puts("Loading search options...")
-
     case HTTPoison.get(@api_url <> "search_options") do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
         # Assume the API returns a JSON object that contains a "results" field
         data = Jason.decode!(body)
         # characters = data
-        IO.inspect(data, label: "PageLive handle_info data")
+        # IO.inspect(data, label: "PageLive handle_info data")
         {:noreply, assign(socket, search_options: data)}
 
       {:ok, %HTTPoison.Response{status_code: status}} ->
@@ -78,6 +76,11 @@ defmodule FrontendWeb.PageLive do
         # Assume the API returns a JSON object that contains a "results" field
         data = Jason.decode!(body)
         # characters = data
+        first = Enum.at(data, 0)
+        first_location = first["location"]["name"]
+        first_name = first["name"]
+        dbg(first_location, label: "PageLive characters data")
+        dbg(first_name, label: "PageLive characters data")
         {:noreply, assign(socket, characters: data)}
 
       {:ok, %HTTPoison.Response{status_code: status}} ->

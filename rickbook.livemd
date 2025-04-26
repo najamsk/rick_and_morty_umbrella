@@ -30,7 +30,7 @@ defmodule RickAndMortyFetcher do
         filtered_results =
           results
           |> Enum.map(fn character ->
-            Map.drop(character, ["location", "episode"])
+            Map.drop(character, ["episode"])
           end)
         # cleaned_response = Map.put(response, "results", filtered_results)
         # IO.inspect(cleaned_response)

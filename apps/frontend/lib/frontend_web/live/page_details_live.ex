@@ -28,10 +28,9 @@ defmodule FrontendWeb.PageDetailsLive do
 
   def render(assigns) do
     ~H"""
-    <h1>Character Details</h1>
-    <%!-- <pre>
+    <pre>
       <%= inspect(@character, pretty: true) %>
-    </pre> --%>
+    </pre>
 
     <%= if @error do %>
       <p style="color:red;">{@error}</p>
@@ -40,6 +39,22 @@ defmodule FrontendWeb.PageDetailsLive do
         <div>
           <h2>{@character["name"]}</h2>
           <img src={@character["image"]} />
+          <p>
+            <strong>Last Location:</strong>
+            {@character["location"]["name"]}
+          </p>
+          <p>
+            <strong>Status:</strong>
+            {@character["status"]}
+          </p>
+          <p>
+            <strong>Specie:</strong>
+            {@character["species"]}
+          </p>
+          <p>
+            <strong>Gender:</strong>
+            {@character["gender"]}
+          </p>
         </div>
       <% else %>
         <p>Loading character details...</p>
