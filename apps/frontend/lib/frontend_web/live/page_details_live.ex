@@ -12,11 +12,13 @@ defmodule FrontendWeb.PageDetailsLive do
   def handle_info({:load_character, id}, socket) do
     case HTTPoison.get(@api_url <> "/" <> id) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
-        # Assume the API returns a JSON object that contains a "results" field
-        data = Jason.decode!(body)
-        IO.inspect(data, label: "PageDetailsLive handle_info data")
-        # character = Map.get(data, "results", %{})
-        {:noreply, assign(socket, character: data)}
+        case Jason.decode(body) do
+          {:ok, data} ->
+            {:noreply, assign(socket, character: data)}
+
+          {:error, _reason} ->
+            {:noreply, assign(socket, error: "Error reading character details from API")}
+        end
 
       {:ok, %HTTPoison.Response{status_code: status}} ->
         {:noreply, assign(socket, error: "Unexpected status code: #{status}")}
