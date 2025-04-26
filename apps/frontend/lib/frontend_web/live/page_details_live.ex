@@ -1,31 +1,19 @@
 defmodule FrontendWeb.PageDetailsLive do
   use FrontendWeb, :live_view
-  # adjust if your API runs on a different port
-  # @api_url "http://localhost:4000/api/characters"
   @api_url Application.compile_env(:frontend, :api_url, "http://localhost:4000/api/characters")
 
   def mount(%{"id" => id}, _session, socket) do
-    # IO.inspect(params, label: "PageDetailsLive mount params")
     if connected?(socket), do: send(self(), {:load_character, id})
     {:ok, assign(socket, page_title: "Character Details", character: %{}, error: nil)}
   end
 
   def handle_info({:load_character, id}, socket) do
-    case HTTPoison.get(@api_url <> "/characters/" <> id) do
-      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
-        case Jason.decode(body) do
-          {:ok, data} ->
-            {:noreply, assign(socket, character: data)}
+    case Frontend.ApiClient.fetch_character(id) do
+      {:ok, data} ->
+        {:noreply, assign(socket, character: data)}
 
-          {:error, _reason} ->
-            {:noreply, assign(socket, error: "Error reading character details from API")}
-        end
-
-      {:ok, %HTTPoison.Response{status_code: status}} ->
-        {:noreply, assign(socket, error: "Unexpected status code: #{status}")}
-
-      {:error, reason} ->
-        {:noreply, assign(socket, error: "Error fetching characters: #{inspect(reason)}")}
+      {:error, error_message} ->
+        {:noreply, assign(socket, error: error_message)}
     end
   end
 
