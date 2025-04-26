@@ -2,9 +2,6 @@ defmodule FrontendWeb.PageLive do
   use FrontendWeb, :live_view
   alias Frontend.ApiClient
 
-  # adjust if your API runs on a different port
-  @api_url Application.compile_env(:frontend, :api_url, "http://localhost:4000/api/")
-
   @impl true
   def mount(_params, _session, socket) do
     if connected?(socket) do

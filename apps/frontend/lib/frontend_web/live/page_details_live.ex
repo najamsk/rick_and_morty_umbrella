@@ -1,6 +1,5 @@
 defmodule FrontendWeb.PageDetailsLive do
   use FrontendWeb, :live_view
-  @api_url Application.compile_env(:frontend, :api_url, "http://localhost:4000/api/characters")
 
   def mount(%{"id" => id}, _session, socket) do
     if connected?(socket), do: send(self(), {:load_character, id})
