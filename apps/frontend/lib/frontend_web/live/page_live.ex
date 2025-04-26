@@ -2,10 +2,14 @@ defmodule FrontendWeb.PageLive do
   use FrontendWeb, :live_view
 
   # adjust if your API runs on a different port
-  @api_url "http://localhost:4000/api/characters"
+  @api_url "http://localhost:4000/api/"
 
+  @impl true
   def mount(_params, _session, socket) do
-    if connected?(socket), do: send(self(), :load_characters)
+    if connected?(socket) do
+      send(self(), :load_characters)
+      send(self(), :load_search_options)
+    end
 
     {:ok,
      assign(socket,
@@ -13,12 +17,63 @@ defmodule FrontendWeb.PageLive do
        characters: [],
        error: nil,
        query: "",
-       species_list: []
+       gender: "",
+       species: "",
+       status: "",
+       search_options: %{"genders" => [], "species" => [], "statuses" => []}
      )}
   end
 
+  @impl true
+  def handle_event(
+        "search",
+        %{"query" => query, "gender" => gender, "species" => species, "status" => status},
+        socket
+      ) do
+    all = Api.RickAndMortyApiClient.all_characters()
+
+    filtered =
+      all
+      |> Enum.filter(fn char ->
+        name_match = String.contains?(String.downcase(char["name"]), String.downcase(query || ""))
+        gender_match = gender == "" || char["gender"] == gender
+        species_match = species == "" || char["species"] == species
+        status_match = status == "" || char["status"] == status
+        name_match and gender_match and species_match and status_match
+      end)
+
+    {:noreply,
+     assign(socket,
+       characters: filtered,
+       query: query,
+       gender: gender,
+       species: species,
+       status: status
+     )}
+  end
+
+  @impl true
+  def handle_info(:load_search_options, socket) do
+    IO.puts("Loading search options...")
+
+    case HTTPoison.get(@api_url <> "search_options") do
+      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
+        # Assume the API returns a JSON object that contains a "results" field
+        data = Jason.decode!(body)
+        # characters = data
+        IO.inspect(data, label: "PageLive handle_info data")
+        {:noreply, assign(socket, search_options: data)}
+
+      {:ok, %HTTPoison.Response{status_code: status}} ->
+        {:noreply, assign(socket, error: "Unexpected status code: #{status}")}
+
+      {:error, reason} ->
+        {:noreply, assign(socket, error: "Error fetching characters: #{inspect(reason)}")}
+    end
+  end
+
   def handle_info(:load_characters, socket) do
-    case HTTPoison.get(@api_url) do
+    case HTTPoison.get(@api_url <> "characters") do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
         # Assume the API returns a JSON object that contains a "results" field
         data = Jason.decode!(body)
@@ -33,6 +88,7 @@ defmodule FrontendWeb.PageLive do
     end
   end
 
+  @impl true
   def render(assigns) do
     ~H"""
     <form phx-change="search" class="space-y-4 mb-4 bg-gray-800 shadow-sm p-4 rounded-lg">
@@ -42,28 +98,25 @@ defmodule FrontendWeb.PageLive do
         value={@query}
         placeholder="Search by name..."
         class="w-full p-2 border rounded"
+        phx-debounce="500"
       />
-
       <select name="gender" class="w-full p-2 border rounded">
         <option value="">All Genders</option>
-        <option value="Male">Male</option>
-        <option value="Female">Female</option>
-        <option value="Genderless">Genderless</option>
-        <option value="unknown">Unknown</option>
-      </select>
-
-      <select name="species" class="w-full p-2 border rounded">
-        <option value="">All Species</option>
-        <%= for species <- @species_list do %>
-          <option value={species}>{species}</option>
+        <%= for gender <- @search_options["genders"] do %>
+          <option value={gender} selected={gender == @gender}>{gender}</option>
         <% end %>
       </select>
-
+      <select name="species" class="w-full p-2 border rounded">
+        <option value="">All Species</option>
+        <%= for species <- @search_options["species"] do %>
+          <option value={species} selected={species == @species}>{species}</option>
+        <% end %>
+      </select>
       <select name="status" class="w-full p-2 border rounded">
         <option value="">All Statuses</option>
-        <option value="Alive">Alive</option>
-        <option value="Dead">Dead</option>
-        <option value="unknown">Unknown</option>
+        <%= for status <- @search_options["statuses"] do %>
+          <option value={status} selected={status == @status}>{status}</option>
+        <% end %>
       </select>
     </form>
 
