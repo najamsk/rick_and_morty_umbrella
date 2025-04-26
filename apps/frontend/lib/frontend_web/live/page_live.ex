@@ -1,8 +1,9 @@
 defmodule FrontendWeb.PageLive do
   use FrontendWeb, :live_view
+  alias Frontend.ApiClient
 
   # adjust if your API runs on a different port
-  @api_url "http://localhost:4000/api/"
+  @api_url Application.compile_env(:frontend, :api_url, "http://localhost:4000/api/")
 
   @impl true
   def mount(_params, _session, socket) do
@@ -30,58 +31,33 @@ defmodule FrontendWeb.PageLive do
         %{"query" => query, "gender" => gender, "species" => species, "status" => status},
         socket
       ) do
-    all = Api.RickAndMortyApiClient.all_characters()
+    res = ApiClient.filter_characters(query, gender, species, status)
 
-    filtered =
-      all
-      |> Enum.filter(fn char ->
-        name_match = String.contains?(String.downcase(char["name"]), String.downcase(query || ""))
-        gender_match = gender == "" || char["gender"] == gender
-        species_match = species == "" || char["species"] == species
-        status_match = status == "" || char["status"] == status
-        name_match and gender_match and species_match and status_match
-      end)
+    socket =
+      socket
+      |> assign(
+        characters: res,
+        query: query,
+        gender: gender,
+        species: species,
+        status: status
+      )
 
-    {:noreply,
-     assign(socket,
-       characters: filtered,
-       query: query,
-       gender: gender,
-       species: species,
-       status: status
-     )}
+    {:noreply, socket}
   end
 
   @impl true
   def handle_info(:load_search_options, socket) do
-    case HTTPoison.get(@api_url <> "search_options") do
-      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
-        case Jason.decode(body) do
-          {:ok, data} -> {:noreply, assign(socket, search_options: data)}
-          {:error, _} -> {:noreply, assign(socket, error: "Error decoding JSON")}
-        end
-
-      {:ok, %HTTPoison.Response{status_code: status}} ->
-        {:noreply, assign(socket, error: "Unexpected status code: #{status}")}
-
-      {:error, reason} ->
-        {:noreply, assign(socket, error: "Error fetching characters: #{inspect(reason)}")}
+    case ApiClient.search_options() do
+      {:ok, data} -> {:noreply, assign(socket, search_options: data)}
+      {:error, error_message} -> {:noreply, assign(socket, error: error_message)}
     end
   end
 
   def handle_info(:load_characters, socket) do
-    case HTTPoison.get("#{@api_url}characters") do
-      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
-        case Jason.decode(body) do
-          {:ok, data} -> {:noreply, assign(socket, characters: data)}
-          {:error, _} -> {:noreply, assign(socket, error: "Error decoding JSON")}
-        end
-
-      {:ok, %HTTPoison.Response{status_code: status}} ->
-        {:noreply, assign(socket, error: "Unexpected status code: #{status}")}
-
-      {:error, reason} ->
-        {:noreply, assign(socket, error: "Error fetching characters: #{inspect(reason)}")}
+    case ApiClient.fetch_characters() do
+      {:ok, data} -> {:noreply, assign(socket, characters: data)}
+      {:error, error_message} -> {:noreply, assign(socket, error: error_message)}
     end
   end
 

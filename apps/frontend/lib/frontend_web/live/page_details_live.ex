@@ -1,28 +1,19 @@
 defmodule FrontendWeb.PageDetailsLive do
   use FrontendWeb, :live_view
-  # adjust if your API runs on a different port
-  @api_url "http://localhost:4000/api/characters"
+  @api_url Application.compile_env(:frontend, :api_url, "http://localhost:4000/api/characters")
 
   def mount(%{"id" => id}, _session, socket) do
-    # IO.inspect(params, label: "PageDetailsLive mount params")
     if connected?(socket), do: send(self(), {:load_character, id})
     {:ok, assign(socket, page_title: "Character Details", character: %{}, error: nil)}
   end
 
   def handle_info({:load_character, id}, socket) do
-    case HTTPoison.get(@api_url <> "/" <> id) do
-      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
-        # Assume the API returns a JSON object that contains a "results" field
-        data = Jason.decode!(body)
-        IO.inspect(data, label: "PageDetailsLive handle_info data")
-        # character = Map.get(data, "results", %{})
+    case Frontend.ApiClient.fetch_character(id) do
+      {:ok, data} ->
         {:noreply, assign(socket, character: data)}
 
-      {:ok, %HTTPoison.Response{status_code: status}} ->
-        {:noreply, assign(socket, error: "Unexpected status code: #{status}")}
-
-      {:error, reason} ->
-        {:noreply, assign(socket, error: "Error fetching characters: #{inspect(reason)}")}
+      {:error, error_message} ->
+        {:noreply, assign(socket, error: error_message)}
     end
   end
 
@@ -36,9 +27,9 @@ defmodule FrontendWeb.PageDetailsLive do
       <p style="color:red;">{@error}</p>
     <% else %>
       <%= if @character do %>
-        <div class="max-w-sm w-full lg:max-w-3xl lg:flex border-r border-b border-l border-gray-400  lg:border-l-0 lg:border-t lg:border-gray-400 shadow-lg">
+        <div class="w-full lg:max-w-3xl flex border-r border-b border-l border-gray-400  lg:border-l-0 lg:border-t lg:border-gray-400 shadow-lg">
           <div
-            class="h-48 lg:h-auto lg:w-48 flex-none bg-cover rounded-t lg:rounded-t-none lg:rounded-l text-center overflow-hidden"
+            class="h-100 w-48 lg:h-auto lg:w-48 bg-cover rounded-t lg:rounded-t-none lg:rounded-l text-center overflow-hidden"
             style={"background-image: url('#{@character["image"]}');"}
             title="Woman holding a mug"
           >
