@@ -1,7 +1,8 @@
 defmodule FrontendWeb.PageDetailsLive do
   use FrontendWeb, :live_view
   # adjust if your API runs on a different port
-  @api_url "http://localhost:4000/api/characters"
+  # @api_url "http://localhost:4000/api/characters"
+  @api_url Application.compile_env(:frontend, :api_url, "http://localhost:4000/api/characters")
 
   def mount(%{"id" => id}, _session, socket) do
     # IO.inspect(params, label: "PageDetailsLive mount params")

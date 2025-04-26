@@ -55,6 +55,9 @@ config :frontend, FrontendWeb.Endpoint,
 # Enable dev routes for dashboard and mailbox
 config :frontend, dev_routes: true
 
+# api url
+config :frontend, :api_url, "http://localhost:4000/api/"
+
 # Do not include metadata nor timestamps in development logs
 config :logger, :console, format: "[$level] $message\n"
 

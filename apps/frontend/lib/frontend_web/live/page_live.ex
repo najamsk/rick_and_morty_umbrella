@@ -2,7 +2,7 @@ defmodule FrontendWeb.PageLive do
   use FrontendWeb, :live_view
 
   # adjust if your API runs on a different port
-  @api_url "http://localhost:4000/api/"
+  @api_url Application.compile_env(:frontend, :api_url, "http://localhost:4000/api/")
 
   @impl true
   def mount(_params, _session, socket) do
@@ -30,26 +30,32 @@ defmodule FrontendWeb.PageLive do
         %{"query" => query, "gender" => gender, "species" => species, "status" => status},
         socket
       ) do
-    all = Api.RickAndMortyApiClient.all_characters()
+    case fetch_characters() do
+      {:ok, data} ->
+        filtered =
+          data
+          |> Enum.filter(fn char ->
+            name_match =
+              String.contains?(String.downcase(char["name"]), String.downcase(query || ""))
 
-    filtered =
-      all
-      |> Enum.filter(fn char ->
-        name_match = String.contains?(String.downcase(char["name"]), String.downcase(query || ""))
-        gender_match = gender == "" || char["gender"] == gender
-        species_match = species == "" || char["species"] == species
-        status_match = status == "" || char["status"] == status
-        name_match and gender_match and species_match and status_match
-      end)
+            gender_match = gender == "" || char["gender"] == gender
+            species_match = species == "" || char["species"] == species
+            status_match = status == "" || char["status"] == status
+            name_match and gender_match and species_match and status_match
+          end)
 
-    {:noreply,
-     assign(socket,
-       characters: filtered,
-       query: query,
-       gender: gender,
-       species: species,
-       status: status
-     )}
+        {:noreply,
+         assign(socket,
+           characters: filtered,
+           query: query,
+           gender: gender,
+           species: species,
+           status: status
+         )}
+
+      {:error, error_message} ->
+        {:noreply, assign(socket, error: error_message)}
+    end
   end
 
   @impl true
@@ -70,18 +76,25 @@ defmodule FrontendWeb.PageLive do
   end
 
   def handle_info(:load_characters, socket) do
+    case fetch_characters() do
+      {:ok, data} -> {:noreply, assign(socket, characters: data)}
+      {:error, error_message} -> {:noreply, assign(socket, error: error_message)}
+    end
+  end
+
+  defp fetch_characters do
     case HTTPoison.get("#{@api_url}characters") do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
         case Jason.decode(body) do
-          {:ok, data} -> {:noreply, assign(socket, characters: data)}
-          {:error, _} -> {:noreply, assign(socket, error: "Error decoding JSON")}
+          {:ok, data} -> {:ok, data}
+          {:error, _} -> {:error, "Error decoding JSON"}
         end
 
       {:ok, %HTTPoison.Response{status_code: status}} ->
-        {:noreply, assign(socket, error: "Unexpected status code: #{status}")}
+        {:error, "Unexpected status code: #{status}"}
 
       {:error, reason} ->
-        {:noreply, assign(socket, error: "Error fetching characters: #{inspect(reason)}")}
+        {:error, "Error fetching characters: #{inspect(reason)}"}
     end
   end
 
