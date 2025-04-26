@@ -56,11 +56,10 @@ defmodule FrontendWeb.PageLive do
   def handle_info(:load_search_options, socket) do
     case HTTPoison.get(@api_url <> "search_options") do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
-        # Assume the API returns a JSON object that contains a "results" field
-        data = Jason.decode!(body)
-        # characters = data
-        # IO.inspect(data, label: "PageLive handle_info data")
-        {:noreply, assign(socket, search_options: data)}
+        case Jason.decode(body) do
+          {:ok, data} -> {:noreply, assign(socket, search_options: data)}
+          {:error, _} -> {:noreply, assign(socket, error: "Error decoding JSON")}
+        end
 
       {:ok, %HTTPoison.Response{status_code: status}} ->
         {:noreply, assign(socket, error: "Unexpected status code: #{status}")}
@@ -71,17 +70,12 @@ defmodule FrontendWeb.PageLive do
   end
 
   def handle_info(:load_characters, socket) do
-    case HTTPoison.get(@api_url <> "characters") do
+    case HTTPoison.get("#{@api_url}characters") do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
-        # Assume the API returns a JSON object that contains a "results" field
-        data = Jason.decode!(body)
-        # characters = data
-        first = Enum.at(data, 0)
-        first_location = first["location"]["name"]
-        first_name = first["name"]
-        dbg(first_location, label: "PageLive characters data")
-        dbg(first_name, label: "PageLive characters data")
-        {:noreply, assign(socket, characters: data)}
+        case Jason.decode(body) do
+          {:ok, data} -> {:noreply, assign(socket, characters: data)}
+          {:error, _} -> {:noreply, assign(socket, error: "Error decoding JSON")}
+        end
 
       {:ok, %HTTPoison.Response{status_code: status}} ->
         {:noreply, assign(socket, error: "Unexpected status code: #{status}")}
@@ -94,7 +88,11 @@ defmodule FrontendWeb.PageLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <form phx-change="search" class="space-y-4 mb-4 bg-gray-800 shadow-sm p-4 rounded-lg">
+    <form
+      phx-change="search"
+      class="space-y-4 mb-4 bg-gray-800 shadow-sm p-4 rounded-lg"
+      phx-page-loading
+    >
       <input
         type="text"
         name="query"
