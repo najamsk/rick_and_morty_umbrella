@@ -11,7 +11,7 @@ defmodule FrontendWeb.PageDetailsLive do
   end
 
   def handle_info({:load_character, id}, socket) do
-    case HTTPoison.get(@api_url <> "/" <> id) do
+    case HTTPoison.get(@api_url <> "/characters/" <> id) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
         case Jason.decode(body) do
           {:ok, data} ->
