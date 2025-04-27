@@ -78,7 +78,7 @@ Enum.reverse(mine)
 ```elixir
 case HTTPoison.get("https://rickandmortyapi.com/api/character", [], recv_timeout: 10_000) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
-        %{"info" => %{"next" => next_url}, "results" => results} = Jason.decode!(body)
+        %{"info" => %{"next" => next_url}, "results" => results} = Jason.decode!(body) 
 
        
   filtered_results =
@@ -96,4 +96,9 @@ case HTTPoison.get("https://rickandmortyapi.com/api/character", [], recv_timeout
         IO.inspect(reason, label: "HTTP Error")
         []
     end
+```
+
+```elixir
+v = Jason.decode("invalid")
+v
 ```
