@@ -2,9 +2,6 @@ defmodule FrontendWeb.PageLive do
   use FrontendWeb, :live_view
   alias Frontend.ApiClient
 
-  # adjust if your API runs on a different port
-  @api_url Application.compile_env(:frontend, :api_url, "http://localhost:4000/api/")
-
   @impl true
   def mount(_params, _session, socket) do
     if connected?(socket) do
@@ -12,17 +9,18 @@ defmodule FrontendWeb.PageLive do
       send(self(), :load_search_options)
     end
 
-    {:ok,
-     assign(socket,
-       page_title: "Rick & Morty Characters!",
-       characters: [],
-       error: nil,
-       query: "",
-       gender: "",
-       species: "",
-       status: "",
-       search_options: %{"genders" => [], "species" => [], "statuses" => []}
-     )}
+    socket =
+      socket
+      |> assign(page_title: "Rick & Morty Characters!")
+      |> assign(characters: [])
+      |> assign(error: nil)
+      |> assign(query: "")
+      |> assign(gender: "")
+      |> assign(species: "")
+      |> assign(status: "")
+      |> assign(search_options: %{"genders" => [], "species" => [], "statuses" => []})
+
+    {:ok, socket}
   end
 
   @impl true
@@ -35,13 +33,11 @@ defmodule FrontendWeb.PageLive do
 
     socket =
       socket
-      |> assign(
-        characters: res,
-        query: query,
-        gender: gender,
-        species: species,
-        status: status
-      )
+      |> assign(:characters, res)
+      |> assign(:query, query)
+      |> assign(:gender, gender)
+      |> assign(:species, species)
+      |> assign(:status, status)
 
     {:noreply, socket}
   end
@@ -104,7 +100,11 @@ defmodule FrontendWeb.PageLive do
         <%= for character <- @characters do %>
           <li class="">
             <.link navigate={"/" <> to_string(character["id"])} class="relative">
-              <img src={character["image"]} class="w-full" />
+              <img
+                src={"/images/rick_and_morty_avatars/#{to_string(character["id"])}.jpeg"}
+                alt=""
+                class="w-full"
+              />
               <span class="absolute bottom-0 left-0 w-full  bg-gray-200/90 block text-center  ">
                 {character["name"]}
               </span>

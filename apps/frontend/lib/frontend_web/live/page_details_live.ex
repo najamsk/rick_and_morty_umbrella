@@ -1,6 +1,5 @@
 defmodule FrontendWeb.PageDetailsLive do
   use FrontendWeb, :live_view
-  @api_url Application.compile_env(:frontend, :api_url, "http://localhost:4000/api/characters")
 
   def mount(%{"id" => id}, _session, socket) do
     if connected?(socket), do: send(self(), {:load_character, id})
@@ -30,7 +29,7 @@ defmodule FrontendWeb.PageDetailsLive do
         <div class="w-full lg:max-w-3xl flex border-r border-b border-l border-gray-400  lg:border-l-0 lg:border-t lg:border-gray-400 shadow-lg">
           <div
             class="h-100 w-48 lg:h-auto lg:w-48 bg-cover rounded-t lg:rounded-t-none lg:rounded-l text-center overflow-hidden"
-            style={"background-image: url('#{@character["image"]}');"}
+            style={"background-image: url('/images/rick_and_morty_avatars/#{to_string(@character["id"])}.jpeg');"}
             title="Woman holding a mug"
           >
           </div>
