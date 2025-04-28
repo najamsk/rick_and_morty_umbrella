@@ -102,3 +102,45 @@ case HTTPoison.get("https://rickandmortyapi.com/api/character", [], recv_timeout
 v = Jason.decode("invalid")
 v
 ```
+
+```elixir
+
+
+# Base URL for avatars
+base_url = "https://rickandmortyapi.com/api/character/avatar"
+
+# Directory to save images
+save_dir = "rick_and_morty_avatars"
+
+# Create directory if it doesn't exist
+File.mkdir_p!(save_dir)
+
+# Helper function to download a single image
+defmodule Downloader do
+  def download(id, base_url, save_dir) do
+    url = "#{base_url}/#{id}.jpeg"
+    file_path = Path.join(save_dir, "#{id}.jpeg")
+
+    case HTTPoison.get(url) do
+      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
+        File.write!(file_path, body)
+        IO.puts("✅ Downloaded #{id}")
+
+      {:ok, %HTTPoison.Response{status_code: status}} ->
+        IO.puts("⚠️  Failed #{id}: Status #{status}")
+
+      {:error, reason} ->
+        IO.puts("❌ Error downloading #{id}: #{inspect(reason)}")
+    end
+  end
+end
+
+# Download all images 1..826
+1..826
+|> Enum.each(fn id ->
+  Downloader.download(id, base_url, save_dir)
+end)
+
+IO.puts("🎉 All images downloaded!")
+
+```
