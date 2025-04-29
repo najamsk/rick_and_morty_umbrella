@@ -1,4 +1,4 @@
-# RickMortyUmbrella
+# RickMorty Umbrella
 This is an elixir, phoenix/LiveView app based on elixir umbrella project. Kudos to https://rickandmortyapi.com/ for a wonderful api. This project on startup will load data from https://rickandmortyapi.com/ api and store textual data in json file that will serve as our store and images will be downloaded as well. 
 
 
