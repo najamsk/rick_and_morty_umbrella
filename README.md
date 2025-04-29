@@ -2,15 +2,9 @@
 This is an elixir, phoenix/LiveView app based on elixir umbrella project. Kudos to https://rickandmortyapi.com/ for a wonderful api. This project on startup will load data from https://rickandmortyapi.com/ api and store textual data in json file that will serve as our store and images will be downloaded as well. 
 
 
-<a href="https://ko-fi.com/C0C71E7JQK" target="_blank">
-<img
-    height="36"
-    style="border:0px;height:36px;"
-    src="https://storage.ko-fi.com/cdn/kofi3.png?v=6"
-    border="0"
-    alt="Buy Me a Coffee at ko-fi.com"
-/>
-</a>
+<a href='https://ko-fi.com/C0C71E7JQK' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://storage.ko-fi.com/cdn/kofi2.png?v=6' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
+
+
 
 
 ## API Project
@@ -36,14 +30,4 @@ To run the front and api from root run following
 
     iex -S mix phx.server
 
-
-
-<a href="https://ko-fi.com/C0C71E7JQK" target="_blank">
-<img
-    height="36"
-    style="border:0px;height:36px;"
-    src="https://storage.ko-fi.com/cdn/kofi3.png?v=6"
-    border="0"
-    alt="Buy Me a Coffee at ko-fi.com"
-/>
-</a>
+<a href='https://ko-fi.com/C0C71E7JQK' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://storage.ko-fi.com/cdn/kofi2.png?v=6' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
