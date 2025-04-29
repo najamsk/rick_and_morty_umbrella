@@ -7,7 +7,11 @@ defmodule Api.Application do
 
   @impl true
   def start(_type, _args) do
-    Api.CharacterStore.load_data()
+    # Api.CharacterStore.load_data()
+    Task.start(fn ->
+      Api.RickAndMortyFetcher.fetch_and_save_characters()
+      Api.CharacterStore.load_data()
+    end)
 
     children = [
       ApiWeb.Telemetry,

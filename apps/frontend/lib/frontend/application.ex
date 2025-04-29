@@ -7,10 +7,17 @@ defmodule Frontend.Application do
 
   @impl true
   def start(_type, _args) do
+    Task.start(fn ->
+      Frontend.RickAndMortyImageFetcher.download_all_images()
+      # Api.RickAndMortyFetcher.fetch_and_save_characters()
+      # Api.CharacterStore.load_data()
+    end)
+
     children = [
       FrontendWeb.Telemetry,
       {DNSCluster, query: Application.get_env(:frontend, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: Frontend.PubSub},
+      # {Phoenix.PubSub, name: Api.PubSub},
       # Start the Finch HTTP client for sending emails
       {Finch, name: Frontend.Finch},
       # Start a worker by calling: Frontend.Worker.start_link(arg)
