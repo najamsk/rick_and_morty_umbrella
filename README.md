@@ -38,7 +38,12 @@ To run the frontend and API from the root, execute the following:
 ```bash
 iex -S mix phx.server
 ```
+## TODO(s)
+- API and FrontEnd both should have a config boolean setting like auto download to fetch data (json+images) form rick and morty api. Default will be false since repo has charaters.json and images alraedy.
+- Fetching data from rick and morty api and loading data into persistant_term should be call indepentlly form application start function. So if we dont want to get new data we can read data from json file into persistent_term and serve from there.
 
+
+## Support
 <a href="https://www.buymeacoffee.com/najamsk" target="_blank">
 <img
     src="https://cdn.buymeacoffee.com/buttons/v2/default-blue.png"

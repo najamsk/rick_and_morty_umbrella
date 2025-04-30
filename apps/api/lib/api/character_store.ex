@@ -51,7 +51,7 @@ defmodule Api.CharacterStore do
   end
 
   def all_characters do
-    :persistent_term.get(@characters_key)
+    :persistent_term.get(@characters_key, %{})
     |> Map.values()
     |> Enum.shuffle()
   end
@@ -59,19 +59,19 @@ defmodule Api.CharacterStore do
   def get_character(id) when is_binary(id), do: get_character(String.to_integer(id))
 
   def get_character(id) do
-    :persistent_term.get(@characters_key)
+    :persistent_term.get(@characters_key, %{})
     |> Map.get(id)
   end
 
   def all_species do
-    :persistent_term.get(@species_key)
+    :persistent_term.get(@species_key, %{})
   end
 
   def all_genders do
-    :persistent_term.get(@genders_key)
+    :persistent_term.get(@genders_key, %{})
   end
 
   def all_statuses do
-    :persistent_term.get(@statuses_key)
+    :persistent_term.get(@statuses_key, %{})
   end
 end

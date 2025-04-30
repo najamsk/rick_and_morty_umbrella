@@ -4,14 +4,19 @@ defmodule Api.Application do
   @moduledoc false
 
   use Application
+  @auto_fetch_data Application.compile_env(:api, :auto_fetch_data, false)
 
   @impl true
   def start(_type, _args) do
-    # Api.CharacterStore.load_data()
-    Task.start(fn ->
-      Api.RickAndMortyFetcher.fetch_and_save_characters()
-      Api.CharacterStore.load_data()
-    end)
+    dbg(@auto_fetch_data)
+
+    if @auto_fetch_data do
+      Task.start(fn ->
+        Api.RickAndMortyFetcher.fetch_and_save_characters()
+      end)
+    end
+
+    Api.CharacterStore.load_data()
 
     children = [
       ApiWeb.Telemetry,
