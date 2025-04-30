@@ -1,6 +1,14 @@
 # RickMorty Umbrella
 This is an [Elixir](https://elixir-lang.org/) and [Phoenix/LiveView](https://phoenixframework.org/) app based on an Elixir umbrella project. Kudos to [Rick and Morty API](https://rickandmortyapi.com/) for providing a wonderful API. On startup, this project loads data from the [Rick and Morty API](https://rickandmortyapi.com/) and stores textual data in a JSON file, which serves as our store, while images are downloaded as well.
 
+<a href="https://www.buymeacoffee.com/najamsk" target="_blank">
+<img
+    src="https://cdn.buymeacoffee.com/buttons/v2/default-blue.png"
+    alt="Buy Me A Coffee"
+    style="height: 36px !important;width: 150px !important;"
+/>
+</a>
+
 <a href="https://ko-fi.com/C0C71E7JQK" target="_blank"><img height="36" style="border:0px;height:36px;" src="https://storage.ko-fi.com/cdn/kofi2.png?v=6" border="0" alt="Buy Me a Coffee at ko-fi.com" /></a>
 
 ## API Project
