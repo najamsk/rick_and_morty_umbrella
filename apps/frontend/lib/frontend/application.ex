@@ -5,13 +5,17 @@ defmodule Frontend.Application do
 
   use Application
 
+  @auto_fetch_data Application.compile_env(:frontend, :auto_fetch_data, false)
+
   @impl true
   def start(_type, _args) do
-    Task.start(fn ->
-      Frontend.RickAndMortyImageFetcher.download_all_images()
-      # Api.RickAndMortyFetcher.fetch_and_save_characters()
-      # Api.CharacterStore.load_data()
-    end)
+    dbg(@auto_fetch_data)
+
+    if @auto_fetch_data do
+      Task.start(fn ->
+        Frontend.RickAndMortyImageFetcher.download_all_images()
+      end)
+    end
 
     children = [
       FrontendWeb.Telemetry,
