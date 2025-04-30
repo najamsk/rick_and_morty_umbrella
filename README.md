@@ -8,7 +8,6 @@ This is an [Elixir](https://elixir-lang.org/) and [Phoenix/LiveView](https://pho
     style="height: 36px !important;width: 150px !important;"
 />
 </a>
-
 <a href="https://ko-fi.com/C0C71E7JQK" target="_blank"><img height="36" style="border:0px;height:36px;" src="https://storage.ko-fi.com/cdn/kofi2.png?v=6" border="0" alt="Buy Me a Coffee at ko-fi.com" /></a>
 
 ## API Project
@@ -40,4 +39,11 @@ To run the frontend and API from the root, execute the following:
 iex -S mix phx.server
 ```
 
+<a href="https://www.buymeacoffee.com/najamsk" target="_blank">
+<img
+    src="https://cdn.buymeacoffee.com/buttons/v2/default-blue.png"
+    alt="Buy Me A Coffee"
+    style="height: 36px !important;width: 150px !important;"
+/>
+</a>
 <a href="https://ko-fi.com/C0C71E7JQK" target="_blank"><img height="36" style="border:0px;height:36px;" src="https://storage.ko-fi.com/cdn/kofi2.png?v=6" border="0" alt="Buy Me a Coffee at ko-fi.com" /></a>
