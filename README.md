@@ -18,8 +18,6 @@ Inside our umbrella project, the `Api` app is responsible for serving a simple R
 
 As the name suggests, it serves the UI to users with a characters list that can be filtered based on user input. Data is fetched from the `Api` project, and images are served from this project using the `images` folder and character IDs.
 
-**TODO: Add description**
-
 ## Screenshots
 
 ![List Characters](readme/list.png "List Characters")  
@@ -38,6 +36,17 @@ To run the frontend and API from the root, execute the following:
 ```bash
 iex -S mix phx.server
 ```
+
+Use following to run iex with qualified name and cookie so other nodes or livebook can join this node.
+```bash
+iex --name app@127.0.0.1 --cookie mycookie -S mix phx.server
+```
+Now in livebook you can use attach mode and provide following to connect
+```
+Name= app@127.0.0.1 
+Cookie= mycookie 
+```
+
 ## TODO(s)
 - API and FrontEnd both should have a config boolean setting like auto download to fetch data (json+images) form rick and morty api. Default will be false since repo has charaters.json and images alraedy.
 - Fetching data from rick and morty api and loading data into persistant_term should be call indepentlly form application start function. So if we dont want to get new data we can read data from json file into persistent_term and serve from there.
