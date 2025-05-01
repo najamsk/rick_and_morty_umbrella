@@ -13,10 +13,11 @@ defmodule Api.Application do
     if @auto_fetch_data do
       Task.start(fn ->
         Api.RickAndMortyFetcher.fetch_and_save_characters()
+        Api.CharacterStore.load_data()
       end)
+    else
+      Api.CharacterStore.load_data()
     end
-
-    Api.CharacterStore.load_data()
 
     children = [
       ApiWeb.Telemetry,
