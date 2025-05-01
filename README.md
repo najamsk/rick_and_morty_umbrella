@@ -56,8 +56,8 @@ Cookie= mycookie
 
 ## TODO(s)
 
-- [x] API and FrontEnd both should have a config boolean setting like auto download to fetch data (json+images) form rick and morty api. Default will be false since repo has characters.json and images already.
-- [x] Fetching data from rick and morty api and loading data into persistent_term should be call independently form application start function. So if we don't want to get new data we can read data from json file into persistent_term and serve from there.
+- [X] API and FrontEnd both should have a config boolean setting like auto download to fetch data (json+images) form rick and morty api. Default will be false since repo has characters.json and images already.
+- [X] Fetching data from rick and morty api and loading data into persistent_term should be call independently form application start function. So if we don't want to get new data we can read data from json file into persistent_term and serve from there.
 - [ ] May be show number of episodes and list of episodes on character details screen.
 
 ## Support
