@@ -1,21 +1,19 @@
 defmodule Api.CharacterStore do
   @moduledoc "Loads and caches character data from JSON file"
 
-  @key :characters_cache
+  # @key :characters_cache
   @species_key :species_cache
   @genders_key :genders_cache
   @statuses_key :statuses_cache
   @characters_key :characters_map_cache
 
   def load_data do
-    IO.puts("Loading character data...")
-
     characters =
       Application.app_dir(:api, "priv/characters.json")
       |> File.read!()
       |> Jason.decode!()
 
-    :persistent_term.put(@key, characters)
+    # :persistent_term.put(@key, characters)
 
     # Convert list to a map with id as key
     character_map = Map.new(characters, fn character -> {character["id"], character} end)
@@ -46,9 +44,9 @@ defmodule Api.CharacterStore do
     :ok
   end
 
-  def all_characters_old do
-    :persistent_term.get(@key)
-  end
+  # def all_characters_old do
+  #   :persistent_term.get(@key)
+  # end
 
   def all_characters do
     :persistent_term.get(@characters_key, %{})

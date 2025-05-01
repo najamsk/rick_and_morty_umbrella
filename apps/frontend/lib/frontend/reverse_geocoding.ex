@@ -18,11 +18,10 @@ defmodule Frontend.ReverseGeocoding do
   """
   def fetch_city_and_country(lat, lon) when is_float(lat) and is_float(lon) do
     url = "#{@base_url}?lat=#{lat}&lon=#{lon}&format=json"
-    dbg(url)
 
     case HTTPoison.get(url, [], follow_redirect: true) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
-        dbg(body)
+        # dbg(body)
 
         case Jason.decode(body) do
           {:ok, %{"address" => %{"city" => city, "country" => country}}} ->
