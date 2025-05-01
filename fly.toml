@@ -1,0 +1,24 @@
+# fly.toml app configuration file for rick-morty-umbrella
+
+app = "rick-morty-umbrella"
+primary_region = "iad" # Replace with your desired Fly.io region
+
+[build]
+  builder = "heroku/builder:22"
+  buildpacks = ["https://github.com/HashNuke/heroku-buildpack-elixir"]
+
+[env]
+  PORT = "8080"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ["app"]
+
+[[vm]]
+  memory = "1gb"
+  cpu_kind = "shared"
+  cpus = 1
