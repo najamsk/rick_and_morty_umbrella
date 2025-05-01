@@ -26,12 +26,12 @@ defmodule FrontendWeb.PageLive do
 
   def handle_event("set_location", %{"latitude" => lat, "longitude" => lon}, socket) do
     # Log or store the location data
-    IO.puts("User's location: #{lat}, #{lon}")
+    # IO.puts("User's location: #{lat}, #{lon}")
 
     Frontend.ReverseGeocoding.fetch_city_and_country(lat, lon)
     |> case do
       {:ok, %{city: city, country: country}} ->
-        IO.puts("City: #{city}, Country: #{country}")
+        # IO.puts("City: #{city}, Country: #{country}")
         {:noreply, assign(socket, location: %{country: country, city: city})}
 
       {:error, reason} ->
