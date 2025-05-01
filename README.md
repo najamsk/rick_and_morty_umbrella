@@ -1,7 +1,7 @@
 # RickMorty Umbrella
 This is an [Elixir](https://elixir-lang.org/) and [Phoenix/LiveView](https://phoenixframework.org/) app based on an Elixir umbrella project. Kudos to [Rick and Morty API](https://rickandmortyapi.com/) for providing a wonderful API. On startup, this project loads data from the [Rick and Morty API](https://rickandmortyapi.com/) and stores textual data in a JSON file, which serves as our store, while images are downloaded as well. 
 
-This auto download behavior is controlled by config settings **auto_fetch_data** for api and frontend project. Default value is **false**.
+This auto download behavior is controlled by config settings **auto_fetch_data** for api and frontend project. Default value is **true**.
 Introduced this so we are not pressuring rick and morty api for json data and images.
 ```
 config :api, auto_fetch_data: false
