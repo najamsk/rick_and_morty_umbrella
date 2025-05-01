@@ -18,8 +18,6 @@ Inside our umbrella project, the `Api` app is responsible for serving a simple R
 
 As the name suggests, it serves the UI to users with a characters list that can be filtered based on user input. Data is fetched from the `Api` project, and images are served from this project using the `images` folder and character IDs.
 
-**TODO: Add description**
-
 ## Screenshots
 
 ![List Characters](readme/list.png "List Characters")  
