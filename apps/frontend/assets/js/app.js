@@ -23,7 +23,35 @@ import {LiveSocket} from "phoenix_live_view"
 import topbar from "../vendor/topbar"
 
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
+let GeolocationHook = {
+  mounted() {
+      if (!navigator.geolocation) {
+          console.error("Geolocation is not supported by this browser.");
+          return;
+      }
+
+      // Request user's location
+      navigator.geolocation.getCurrentPosition(
+          (position) => {
+            console.log("Geolocation success:", position);
+              let { latitude, longitude } = position.coords;
+              
+              // Push the location data to the LiveView server
+              this.pushEvent("set_location", { latitude, longitude });
+          },
+          (error) => {
+              console.error("Geolocation error:", error.message);
+          }
+      );
+  }
+};
+
+let hooks = {
+  Geolocation: GeolocationHook
+};
+
 let liveSocket = new LiveSocket("/live", Socket, {
+  hooks,
   longPollFallbackMs: 2500,
   params: {_csrf_token: csrfToken}
 })

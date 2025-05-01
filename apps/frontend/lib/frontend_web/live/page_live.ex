@@ -18,9 +18,26 @@ defmodule FrontendWeb.PageLive do
       |> assign(gender: "")
       |> assign(species: "")
       |> assign(status: "")
+      |> assign(location: %{city: "", country: ""})
       |> assign(search_options: %{"genders" => [], "species" => [], "statuses" => []})
 
     {:ok, socket}
+  end
+
+  def handle_event("set_location", %{"latitude" => lat, "longitude" => lon}, socket) do
+    # Log or store the location data
+    IO.puts("User's location: #{lat}, #{lon}")
+
+    Frontend.ReverseGeocoding.fetch_city_and_country(lat, lon)
+    |> case do
+      {:ok, %{city: city, country: country}} ->
+        IO.puts("City: #{city}, Country: #{country}")
+        {:noreply, assign(socket, location: %{country: country, city: city})}
+
+      {:error, reason} ->
+        IO.puts("Error fetching location: #{reason}")
+        {:noreply, socket}
+    end
   end
 
   @impl true
@@ -60,10 +77,17 @@ defmodule FrontendWeb.PageLive do
   @impl true
   def render(assigns) do
     ~H"""
+    <%= if @location.city != "" && @location.country != "" do %>
+      <p class="text-center text-gray-500 mb-3">
+        Hmm you portal from <strong>Earth: {@location.country} / {@location.city}</strong>
+      </p>
+    <% end %>
     <form
+      id="geolocation-form"
       phx-change="search"
       class="space-y-4 mb-4 bg-gray-800 shadow-sm p-4 rounded-lg"
       phx-page-loading
+      phx-hook="Geolocation"
     >
       <input
         type="text"
