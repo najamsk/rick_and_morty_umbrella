@@ -1,11 +1,13 @@
 defmodule Api.CharacterStore do
   @moduledoc "Loads and caches character data from JSON file"
+  alias Api.CharacterStore
 
   # @key :characters_cache
   @species_key :species_cache
   @genders_key :genders_cache
   @statuses_key :statuses_cache
   @characters_key :characters_map_cache
+  @episodes_key :episodes_map_cache
 
   def load_data do
     characters =
@@ -13,11 +15,18 @@ defmodule Api.CharacterStore do
       |> File.read!()
       |> Jason.decode!()
 
+    episodes =
+      Application.app_dir(:api, "priv/episodes.json")
+      |> File.read!()
+      |> Jason.decode!()
+
     # :persistent_term.put(@key, characters)
 
     # Convert list to a map with id as key
     character_map = Map.new(characters, fn character -> {character["id"], character} end)
+    episode_map = Map.new(episodes, fn episode -> {episode["id"], episode} end)
     :persistent_term.put(@characters_key, character_map)
+    :persistent_term.put(@episodes_key, episode_map)
 
     species =
       characters
@@ -57,8 +66,42 @@ defmodule Api.CharacterStore do
   def get_character(id) when is_binary(id), do: get_character(String.to_integer(id))
 
   def get_character(id) do
-    :persistent_term.get(@characters_key, %{})
-    |> Map.get(id)
+    character =
+      :persistent_term.get(@characters_key, %{})
+      |> Map.get(id)
+
+    episodes = character["episode"]
+
+    ids_list =
+      episodes
+      |> Enum.map(fn episode_url ->
+        String.split(episode_url, "/")
+        |> List.last()
+        |> String.to_integer()
+      end)
+
+    episodes = CharacterStore.get_episodes_by_ids(ids_list)
+
+    Map.put(character, "episode", episodes)
+  end
+
+  def get_episodes_by_ids(ids) do
+    episodes = :persistent_term.get(@episodes_key, %{})
+
+    result =
+      ids
+      |> Enum.reduce(%{}, fn id, acc ->
+        case Map.fetch(episodes, id) do
+          {:ok, episode} ->
+            episode = Map.delete(episode, "characters")
+            Map.put(acc, id, episode)
+
+          :error ->
+            acc
+        end
+      end)
+
+    Map.values(result)
   end
 
   def all_species do
