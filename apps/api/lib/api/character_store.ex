@@ -49,7 +49,6 @@ defmodule Api.CharacterStore do
 
     :persistent_term.put(@statuses_key, statuses)
     IO.puts("Loaded #{length(characters)} characters")
-
     :ok
   end
 
