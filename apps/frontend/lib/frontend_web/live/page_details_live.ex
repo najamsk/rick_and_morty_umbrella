@@ -18,15 +18,11 @@ defmodule FrontendWeb.PageDetailsLive do
 
   def render(assigns) do
     ~H"""
-    <%!-- <pre>
-      <%= inspect(@character, pretty: true) %>
-    </pre> --%>
-
     <%= if @error do %>
       <p style="color:red;">{@error}</p>
     <% else %>
       <%= if @character != %{} do %>
-        <div class="w-full lg:max-w-3xl flex border-r border-b border-l border-gray-400  lg:border-l-0 lg:border-t lg:border-gray-400 shadow-lg">
+        <div class="w-full lg:max-w-3xl flex border-r border-b border-l border-gray-400  lg:border-l-0 lg:border-t lg:border-gray-400 shadow-lg mx-auto mb-10">
           <div
             class="h-100 w-48 lg:h-auto lg:w-48 bg-cover rounded-t lg:rounded-t-none lg:rounded-l text-center overflow-hidden"
             style={"background-image: url('/images/rick_and_morty_avatars/#{to_string(@character["id"])}.jpeg');"}
@@ -36,7 +32,7 @@ defmodule FrontendWeb.PageDetailsLive do
           <div class=" bg-white rounded-b lg:rounded-b-none lg:rounded-r p-4 flex flex-col justify-between leading-normal">
             <div class="mb-8">
               <div class="text-gray-900 font-bold mb-3">
-                <h2 class="text-xl font-bold ">
+                <h2 class="text-xl font-bold text-indigo-600">
                   {@character["name"]}
                 </h2>
                 <p>
@@ -52,10 +48,30 @@ defmodule FrontendWeb.PageDetailsLive do
           </div>
         </div>
         <%!-- card --%>
+        <%!-- episode list start --%>
+        <div class="details w-full lg:max-w-3xl mx-auto">
+          <h2 class="text-3xl font-bold mb-3 text-indigo-600">Episodes</h2>
+          <ul>
+            <%= for episode <- @character["episode"] do %>
+              <li class="card border-b border-gray-400 pb-2 mb-4 last:border-b-0">
+                <p class="text-gray-600 text-xl">
+                  <strong>{episode["name"]}</strong>
+                </p>
+                <p class="info text-gray-500">
+                  <strong class="font-bold"> {episode["episode"]}</strong>, {episode["air_date"]}
+                </p>
+              </li>
+            <% end %>
+          </ul>
+        </div>
+        <%!-- episode list end --%>
       <% else %>
         <p>Loading character details...</p>
       <% end %>
     <% end %>
+    <%!-- <pre>
+      <%= inspect(@character, pretty: true) %>
+    </pre> --%>
     """
   end
 end

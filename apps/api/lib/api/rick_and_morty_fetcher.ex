@@ -22,13 +22,14 @@ defmodule Api.RickAndMortyFetcher do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
         %{"info" => %{"next" => next_url}, "results" => results} = Jason.decode!(body)
 
-        filtered_results =
-          results
-          |> Enum.map(fn character ->
-            Map.drop(character, ["episode"])
-          end)
+        # filtered_results =
+        #   results
+        #   |> Enum.map(fn character ->
+        #     Map.drop(character, ["episode"])
+        #   end)
 
-        fetch_all_pages(next_url, acc ++ filtered_results)
+        # fetch_all_pages(next_url, acc ++ filtered_results)
+        fetch_all_pages(next_url, acc ++ results)
 
       {:ok, %HTTPoison.Response{status_code: code}} ->
         IO.puts("Failed with HTTP code: #{code}")
