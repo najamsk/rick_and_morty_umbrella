@@ -15,6 +15,17 @@ defmodule ApiWeb.CharacterController do
     |> json(RickAndMortyApiClient.get_search_options())
   end
 
+  # GET /api/characters?query=some_query&gender=some_gender&species=some_species&status=some_status
+  def search(conn, %{
+        "query" => query,
+        "gender" => gender,
+        "species" => species,
+        "status" => status
+      }) do
+    data = RickAndMortyApiClient.filter_characters(query, gender, species, status)
+    conn |> json(data)
+  end
+
   # GET /api/characters/:id
   def show(conn, %{"id" => id}) do
     data = RickAndMortyApiClient.get_character(id)

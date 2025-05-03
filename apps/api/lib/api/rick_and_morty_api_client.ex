@@ -17,6 +17,19 @@ defmodule Api.RickAndMortyApiClient do
     }
   end
 
+  @spec filter_characters(String.t(), String.t(), String.t(), String.t()) :: list()
+  def filter_characters(query, gender, species, status) do
+    cahracters = Store.all_characters()
+    query_downcased = String.downcase(query || "")
+
+    Enum.filter(cahracters, fn char ->
+      String.contains?(String.downcase(char["name"]), query_downcased) and
+        (gender == "" or char["gender"] == gender) and
+        (species == "" or char["species"] == species) and
+        (status == "" or char["status"] == status)
+    end)
+  end
+
   @spec get_character(integer()) :: any()
   def get_character(id), do: Store.get_character(id)
 end

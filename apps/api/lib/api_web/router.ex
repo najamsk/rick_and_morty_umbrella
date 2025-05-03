@@ -7,6 +7,11 @@ defmodule ApiWeb.Router do
 
   scope "/api", ApiWeb do
     pipe_through :api
+
+    get "/characters/search",
+        CharacterController,
+        :search
+
     get "/characters", CharacterController, :index
     get "/search_options", CharacterController, :search_options
     get "/characters/:id", CharacterController, :show

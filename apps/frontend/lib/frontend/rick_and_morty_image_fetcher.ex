@@ -61,14 +61,37 @@ defmodule Frontend.RickAndMortyImageFetcher do
   #   end
   # end
 
-  defp fetch_total_characters do
-    case HTTPoison.get("https://rickandmortyapi.com/api/character") do
-      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
-        %{"info" => %{"count" => count}} = Jason.decode!(body)
-        count
+  # defp fetch_total_characters do
+  #   case HTTPoison.get("https://rickandmortyapi.com/api/character") do
+  #     {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
+  #       %{"info" => %{"count" => count}} = Jason.decode!(body)
+  #       count
 
-      {:error, reason} ->
-        IO.puts(reason, label: "Failed to fetch total characters")
+  #     {:error, reason} ->
+  #       IO.puts(reason, label: "Failed to fetch total characters")
+  #       0
+  #   end
+  # end
+  defp fetch_total_characters do
+    url = "https://rickandmortyapi.com/api/character"
+
+    case HTTPoison.get(url) do
+      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
+        case Jason.decode(body) do
+          {:ok, %{"info" => %{"count" => count}}} ->
+            count
+
+          {:error, decode_error} ->
+            IO.puts("❌ JSON decode failed: #{inspect(decode_error)}")
+            0
+        end
+
+      {:error, %HTTPoison.Error{reason: reason}} ->
+        IO.puts("❌ HTTP request failed: #{inspect(reason)}")
+        0
+
+      _ ->
+        IO.puts("❌ Unexpected error fetching total characters")
         0
     end
   end
