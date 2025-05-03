@@ -41,30 +41,37 @@ defmodule FrontendWeb.PageDetailsLive do
     case Frontend.ApiClient.fetch_character(id) do
       {:ok, data} ->
         # Parse the season and episode from the "episode" string
-        episodes =
-          Enum.map(data["episode"], fn episode ->
-            %{"season" => season_number, "episode" => episode_number} =
-              Regex.named_captures(~r/S(?<season>\d+)E(?<episode>\d+)/, episode["episode"])
-
-            case fetch_plot(season_number, episode_number) do
-              {:ok, plot} ->
-                Map.put(episode, "plot", plot)
-
-              {:error, _error_message} ->
-                episode
-            end
-          end)
-
-        # update data with episodes that have plot now
-        data = Map.put(data, "episode", episodes)
         dbg(data)
-
+        send(self(), {:load_character_episodes, data})
         {:noreply, assign(socket, character: data)}
 
       {:error, error_message} ->
         IO.puts("Error fetching character: #{error_message}")
         {:noreply, assign(socket, error: error_message)}
     end
+  end
+
+  def handle_info({:load_character_episodes, character}, socket) do
+    # Process.sleep(10_000)
+
+    episodes =
+      Enum.map(character["episode"], fn episode ->
+        %{"season" => season_number, "episode" => episode_number} =
+          Regex.named_captures(~r/S(?<season>\d+)E(?<episode>\d+)/, episode["episode"])
+
+        case fetch_plot(season_number, episode_number) do
+          {:ok, plot} ->
+            Map.put(episode, "plot", plot)
+
+          {:error, _error_message} ->
+            episode
+        end
+      end)
+
+    # update data with episodes that have plot now
+    character = Map.put(character, "episode", episodes)
+    dbg(character)
+    {:noreply, assign(socket, character: character)}
   end
 
   def render(assigns) do
@@ -104,16 +111,22 @@ defmodule FrontendWeb.PageDetailsLive do
           <h2 class="text-3xl font-bold mb-3 text-indigo-600">Episodes</h2>
           <ul>
             <%= for episode <- @character["episode"] do %>
-              <li class="card border-b border-gray-400 pb-2 mb-4 last:border-b-0">
+              <li class="card border-b border-gray-400 pb-4 mb-4 last:border-b-0">
                 <p class="text-gray-600 text-xl">
                   <strong>{episode["name"]}</strong>
                 </p>
-                <p class="info text-gray-500">
-                  <strong class="font-bold"> {episode["episode"]}</strong>, {episode["air_date"]}
+                <p class="info text-gray-500 mb-1">
+                  <strong class="font-bold">{episode["episode"]}</strong> @{episode["air_date"]}
                 </p>
-                <p>
-                  {episode["plot"]}
-                </p>
+                <%= if episode["plot"] do %>
+                  <p class="text-gray-500 text-xl">
+                    {episode["plot"]}
+                  </p>
+                <% else %>
+                  <p class="text-gray-500">
+                    <strong>Plot:</strong> Loading...
+                  </p>
+                <% end %>
               </li>
             <% end %>
           </ul>
