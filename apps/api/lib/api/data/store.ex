@@ -8,15 +8,28 @@ defmodule Api.Data.Store do
   @episodes_key :episodes_map_cache
 
   def load_data do
+    # characters =
+    #   Application.app_dir(:api, "priv/characters.json")
+    #   |> File.read!()
+    #   |> Jason.decode!()
+
     characters =
-      Application.app_dir(:api, "priv/characters.json")
-      |> File.read!()
-      |> Jason.decode!()
+      with {:ok, content} <- File.read(Application.app_dir(:api, "priv/characters.json")),
+           {:ok, data} <- Jason.decode(content) do
+        data
+      else
+        _ -> []
+      end
 
     episodes =
-      Application.app_dir(:api, "priv/episodes.json")
-      |> File.read!()
-      |> Jason.decode!()
+      with {:ok, content} <- File.read(Application.app_dir(:api, "priv/episodes.json")),
+           {:ok, data} <- Jason.decode(content) do
+        data
+      else
+        _ -> []
+      end
+
+    # dbg(characters)
 
     # :persistent_term.put(@key, characters)
 
@@ -59,23 +72,22 @@ defmodule Api.Data.Store do
   def get_character(id) when is_binary(id), do: get_character(String.to_integer(id))
 
   def get_character(id) do
-    character =
-      :persistent_term.get(@characters_key, %{})
-      |> Map.get(id)
+    IO.puts("Getting character with id: #{id}")
 
-    episodes = character["episode"]
+    case :persistent_term.get(@characters_key, %{}) |> Map.get(id) do
+      nil ->
+        %{}
 
-    ids_list =
-      episodes
-      |> Enum.map(fn episode_url ->
-        String.split(episode_url, "/")
-        |> List.last()
-        |> String.to_integer()
-      end)
+      character ->
+        episode_ids =
+          character["episode"]
+          |> Enum.map(&(String.split(&1, "/") |> List.last() |> String.to_integer()))
 
-    episodes = get_episodes_by_ids(ids_list)
+        updated_episodes = get_episodes_by_ids(episode_ids)
 
-    Map.put(character, "episode", episodes)
+        character
+        |> Map.put("episode", updated_episodes)
+    end
   end
 
   defp get_episodes_by_ids(ids) do

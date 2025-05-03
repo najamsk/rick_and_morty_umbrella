@@ -35,7 +35,7 @@ defmodule Api.Seeder.Seeder do
         acc
 
       {:error, reason} ->
-        IO.inspect(reason, label: "HTTP Error")
+        # IO.inspect(reason, label: "HTTP Error")
         acc
     end
   end
@@ -58,7 +58,7 @@ defmodule Api.Seeder.Seeder do
         acc
 
       {:error, reason} ->
-        IO.inspect(reason, label: "HTTP Error")
+        # IO.inspect(reason, label: "HTTP Error")
         acc
     end
   end

@@ -34,15 +34,17 @@ defmodule FrontendWeb.PageDetailsLive do
       send(self(), {:load_character, id})
     end
 
-    {:ok, assign(socket, page_title: "Character Details", character: %{}, error: nil)}
+    {:ok, assign(socket, page_title: "Character Details", character: nil, error: nil)}
   end
 
   def handle_info({:load_character, id}, socket) do
     case Frontend.ApiClient.fetch_character(id) do
       {:ok, data} ->
         # Parse the season and episode from the "episode" string
-        # dbg(data)
-        send(self(), {:load_character_episodes, data})
+        if data != %{} do
+          send(self(), {:load_character_episodes, data})
+        end
+
         {:noreply, assign(socket, character: data)}
 
       {:error, error_message} ->
@@ -79,58 +81,62 @@ defmodule FrontendWeb.PageDetailsLive do
     <%= if @error do %>
       <p style="color:red;">{@error}</p>
     <% else %>
-      <%= if @character != %{} do %>
-        <div class="w-full lg:max-w-3xl flex border-r border-b border-l border-gray-400  lg:border-l-0 lg:border-t lg:border-gray-400 shadow-lg mx-auto mb-10">
-          <div
-            class="h-100 w-48 lg:h-auto lg:w-48 bg-cover rounded-t lg:rounded-t-none lg:rounded-l text-center overflow-hidden"
-            style={"background-image: url('/images/rick_and_morty_avatars/#{to_string(@character["id"])}.jpeg');"}
-            title="Woman holding a mug"
-          >
-          </div>
-          <div class=" bg-white rounded-b lg:rounded-b-none lg:rounded-r p-4 flex flex-col justify-between leading-normal">
-            <div class="mb-8">
-              <div class="text-gray-900 font-bold mb-3">
-                <h2 class="text-xl font-bold text-indigo-600">
-                  {@character["name"]}
-                </h2>
-                <p>
-                  <span class={"status " <> (if @character["status"] == "Alive", do: "status-alive", else: "status-dead")}>
-                  </span> {@character["status"]} - {@character["species"]}
-                </p>
+      <%= if @character != nil do %>
+        <%= if @character == %{} do %>
+          <p style="color:red;">Character Not found!</p>
+        <% else %>
+          <div class="w-full lg:max-w-3xl flex border-r border-b border-l border-gray-400  lg:border-l-0 lg:border-t lg:border-gray-400 shadow-lg mx-auto mb-10">
+            <div
+              class="h-100 w-48 lg:h-auto lg:w-48 bg-cover rounded-t lg:rounded-t-none lg:rounded-l text-center overflow-hidden"
+              style={"background-image: url('/images/rick_and_morty_avatars/#{to_string(@character["id"])}.jpeg');"}
+              title="Woman holding a mug"
+            >
+            </div>
+            <div class=" bg-white rounded-b lg:rounded-b-none lg:rounded-r p-4 flex flex-col justify-between leading-normal">
+              <div class="mb-8">
+                <div class="text-gray-900 font-bold mb-3">
+                  <h2 class="text-xl font-bold text-indigo-600">
+                    {@character["name"]}
+                  </h2>
+                  <p>
+                    <span class={"status " <> (if @character["status"] == "Alive", do: "status-alive", else: "status-dead")}>
+                    </span> {@character["status"]} - {@character["species"]}
+                  </p>
+                </div>
+                <p><strong>Last Location:</strong> {@character["location"]["name"]}</p>
+                <p><strong>Status:</strong> {@character["status"]}</p>
+                <p><strong>Specie:</strong> {@character["species"]}</p>
+                <p><strong>Gender:</strong> {@character["gender"]}</p>
               </div>
-              <p><strong>Last Location:</strong> {@character["location"]["name"]}</p>
-              <p><strong>Status:</strong> {@character["status"]}</p>
-              <p><strong>Specie:</strong> {@character["species"]}</p>
-              <p><strong>Gender:</strong> {@character["gender"]}</p>
             </div>
           </div>
-        </div>
-        <%!-- card --%>
-        <%!-- episode list start --%>
-        <div class="details w-full lg:max-w-3xl mx-auto">
-          <h2 class="text-3xl font-bold mb-3 text-indigo-600">Episodes</h2>
-          <ul>
-            <%= for episode <- @character["episode"] do %>
-              <li class="card border-b border-gray-400 pb-4 mb-4 last:border-b-0">
-                <p class="text-gray-600 text-xl">
-                  <strong>{episode["name"]}</strong>
-                </p>
-                <p class="info text-gray-500 mb-1">
-                  <strong class="font-bold">{episode["episode"]}</strong> @{episode["air_date"]}
-                </p>
-                <%= if episode["plot"] do %>
-                  <p class="text-gray-500 text-xl  leading-6">
-                    {episode["plot"]}
+          <%!-- card --%>
+          <%!-- episode list start --%>
+          <div class="details w-full lg:max-w-3xl mx-auto">
+            <h2 class="text-3xl font-bold mb-3 text-indigo-600">Episodes</h2>
+            <ul>
+              <%= for episode <- @character["episode"] do %>
+                <li class="card border-b border-gray-400 pb-4 mb-4 last:border-b-0">
+                  <p class="text-gray-600 text-xl">
+                    <strong>{episode["name"]}</strong>
                   </p>
-                <% else %>
-                  <p class="text-gray-500">
-                    <strong>Plot:</strong> Loading...
+                  <p class="info text-gray-500 mb-1">
+                    <strong class="font-bold">{episode["episode"]}</strong> @{episode["air_date"]}
                   </p>
-                <% end %>
-              </li>
-            <% end %>
-          </ul>
-        </div>
+                  <%= if episode["plot"] do %>
+                    <p class="text-gray-500 text-xl  leading-6">
+                      {episode["plot"]}
+                    </p>
+                  <% else %>
+                    <p class="text-gray-500">
+                      <strong>Plot:</strong> Loading...
+                    </p>
+                  <% end %>
+                </li>
+              <% end %>
+            </ul>
+          </div>
+        <% end %>
         <%!-- episode list end --%>
       <% else %>
         <p>Loading character details...</p>

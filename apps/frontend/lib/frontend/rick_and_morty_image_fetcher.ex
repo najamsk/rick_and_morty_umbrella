@@ -5,32 +5,56 @@ defmodule Frontend.RickAndMortyImageFetcher do
   @save_dir Path.join([:code.priv_dir(:frontend), "static", "images", "rick_and_morty_avatars"])
 
   def download_all_images do
-    case File.mkdir_p(@save_dir) do
-      :ok ->
-        total_characters = fetch_total_characters()
+    with :ok <- File.mkdir_p(@save_dir),
+         total when total > 0 <- fetch_total_characters() do
+      1..total
+      |> Task.async_stream(
+        fn id ->
+          :timer.sleep(100)
+          Frontend.RickAndMortyImageFetcher.Downloader.download(id, @base_url, @save_dir)
+        end,
+        max_concurrency: 10,
+        timeout: 30_000
+      )
+      |> Stream.run()
 
-        if total_characters > 0 do
-          1..total_characters
-          |> Task.async_stream(
-            fn id ->
-              # Add a small delay
-              :timer.sleep(100)
-              Frontend.RickAndMortyImageFetcher.Downloader.download(id, @base_url, @save_dir)
-            end,
-            max_concurrency: 10,
-            timeout: 30_000
-          )
-          |> Enum.to_list()
-
-          IO.puts("🎉 All images downloaded!")
-        else
-          IO.puts("❌ Failed to fetch total characters. No images downloaded.")
-        end
-
+      IO.puts("🎉 All images downloaded!")
+    else
       {:error, reason} ->
         IO.puts("❌ Failed to create directory #{@save_dir}: #{inspect(reason)}")
+
+      total when total <= 0 ->
+        IO.puts("❌ Failed to fetch total characters. No images downloaded.")
     end
   end
+
+  # def download_all_images do
+  #   case File.mkdir_p(@save_dir) do
+  #     :ok ->
+  #       total_characters = fetch_total_characters()
+
+  #       if total_characters > 0 do
+  #         1..total_characters
+  #         |> Task.async_stream(
+  #           fn id ->
+  #             # Add a small delay
+  #             :timer.sleep(100)
+  #             Frontend.RickAndMortyImageFetcher.Downloader.download(id, @base_url, @save_dir)
+  #           end,
+  #           max_concurrency: 10,
+  #           timeout: 30_000
+  #         )
+  #         |> Enum.to_list()
+
+  #         IO.puts("🎉 All images downloaded!")
+  #       else
+  #         IO.puts("❌ Failed to fetch total characters. No images downloaded.")
+  #       end
+
+  #     {:error, reason} ->
+  #       IO.puts("❌ Failed to create directory #{@save_dir}: #{inspect(reason)}")
+  #   end
+  # end
 
   defp fetch_total_characters do
     case HTTPoison.get("https://rickandmortyapi.com/api/character") do
@@ -39,8 +63,7 @@ defmodule Frontend.RickAndMortyImageFetcher do
         count
 
       {:error, reason} ->
-        IO.inspect(reason, label: "Failed to fetch total characters")
-        0
+        IO.puts(reason, label: "Failed to fetch total characters")
     end
   end
 

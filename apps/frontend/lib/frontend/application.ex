@@ -9,7 +9,7 @@ defmodule Frontend.Application do
 
   @impl true
   def start(_type, _args) do
-    dbg(@auto_fetch_data)
+    # dbg(@auto_fetch_data)
 
     if @auto_fetch_data do
       Task.start(fn ->
