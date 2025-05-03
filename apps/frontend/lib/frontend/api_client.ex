@@ -37,6 +37,7 @@ defmodule Frontend.ApiClient do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
         case Jason.decode(body) do
           {:ok, data} -> {:ok, data}
+          {:ok, []} -> {:error, "Character not found"}
           {:error, _} -> {:error, "Error decoding JSON"}
         end
 

@@ -5,29 +5,26 @@ defmodule FrontendWeb.PageLive do
   @impl true
   def mount(_params, _session, socket) do
     if connected?(socket) do
-      send(self(), :load_characters)
-      send(self(), :load_search_options)
+      send(self(), :load_all_initial_data)
     end
 
     socket =
-      socket
-      |> assign(page_title: "Rick & Morty Characters!")
-      |> assign(characters: [])
-      |> assign(error: nil)
-      |> assign(query: "")
-      |> assign(gender: "")
-      |> assign(species: "")
-      |> assign(status: "")
-      |> assign(location: %{city: "", country: ""})
-      |> assign(search_options: %{"genders" => [], "species" => [], "statuses" => []})
+      assign(socket, %{
+        page_title: "Rick & Morty Characters!",
+        characters: [],
+        error: nil,
+        query: "",
+        gender: "",
+        species: "",
+        status: "",
+        location: %{city: "", country: ""},
+        search_options: %{"genders" => [], "species" => [], "statuses" => []}
+      })
 
     {:ok, socket}
   end
 
   def handle_event("set_location", %{"latitude" => lat, "longitude" => lon}, socket) do
-    # Log or store the location data
-    # IO.puts("User's location: #{lat}, #{lon}")
-
     Frontend.ReverseGeocoding.fetch_city_and_country(lat, lon)
     |> case do
       {:ok, %{city: city, country: country}} ->
@@ -60,18 +57,20 @@ defmodule FrontendWeb.PageLive do
   end
 
   @impl true
-  def handle_info(:load_search_options, socket) do
-    case ApiClient.search_options() do
-      {:ok, data} -> {:noreply, assign(socket, search_options: data)}
-      {:error, error_message} -> {:noreply, assign(socket, error: error_message)}
-    end
-  end
+  def handle_info(:load_all_initial_data, socket) do
+    socket =
+      case ApiClient.search_options() do
+        {:ok, data} -> assign(socket, search_options: data)
+        {:error, error_message} -> assign(socket, error: error_message)
+      end
 
-  def handle_info(:load_characters, socket) do
-    case ApiClient.fetch_characters() do
-      {:ok, data} -> {:noreply, assign(socket, characters: data)}
-      {:error, error_message} -> {:noreply, assign(socket, error: error_message)}
-    end
+    socket =
+      case ApiClient.fetch_characters() do
+        {:ok, data} -> assign(socket, characters: data)
+        {:error, error_message} -> assign(socket, error: error_message)
+      end
+
+    {:noreply, socket}
   end
 
   @impl true
