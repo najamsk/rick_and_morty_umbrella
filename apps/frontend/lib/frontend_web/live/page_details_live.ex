@@ -174,9 +174,9 @@ defmodule FrontendWeb.PageDetailsLive do
         <p>Loading character details...</p>
       <% end %>
     <% end %>
-    <pre>
+    <%!-- <pre>
       <%= inspect(@character, pretty: true) %>
-    </pre>
+    </pre> --%>
     """
   end
 end

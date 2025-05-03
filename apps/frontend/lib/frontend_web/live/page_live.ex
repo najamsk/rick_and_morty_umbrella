@@ -43,7 +43,12 @@ defmodule FrontendWeb.PageLive do
         %{"query" => query, "gender" => gender, "species" => species, "status" => status},
         socket
       ) do
-    res = ApiClient.filter_characters(query, gender, species, status)
+    # res = ApiClient.filter_characters(query, gender, species, status)
+    res =
+      case ApiClient.filter_characters(query, gender, species, status) do
+        {:ok, res} -> res
+        {:error, _error_message} -> []
+      end
 
     socket =
       socket
