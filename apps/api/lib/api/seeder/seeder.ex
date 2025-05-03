@@ -57,8 +57,7 @@ defmodule Api.Seeder.Seeder do
         IO.puts("Failed with HTTP code: #{code}")
         acc
 
-      {:error, reason} ->
-        # IO.inspect(reason, label: "HTTP Error")
+      {:error, _reason} ->
         acc
     end
   end
