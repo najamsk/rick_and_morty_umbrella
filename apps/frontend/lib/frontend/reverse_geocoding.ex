@@ -45,7 +45,7 @@ defmodule Frontend.ReverseGeocoding do
     end
   end
 
-  def fetch_city_and_country(_, _) do
-    {:error, "Invalid input. Latitude and longitude must be floats."}
-  end
+  # def fetch_city_and_country(_, _) do
+  #   {:error, "Invalid input. Latitude and longitude must be floats."}
+  # end
 end
