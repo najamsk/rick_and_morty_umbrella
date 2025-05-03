@@ -17,6 +17,7 @@ defmodule ApiWeb.CharacterController do
 
   # GET /api/characters/:id
   def show(conn, %{"id" => id}) do
-    conn |> json(RickAndMortyApiClient.get_character(id))
+    data = RickAndMortyApiClient.get_character(id)
+    conn |> json(data)
   end
 end

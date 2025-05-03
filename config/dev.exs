@@ -58,7 +58,7 @@ config :frontend, dev_routes: true
 # api url
 config :frontend, :api_url, "http://localhost:4000/api/"
 
-config :frontend, auto_fetch_data: false
+config :frontend, auto_fetch_data: true
 
 # Do not include metadata nor timestamps in development logs
 config :logger, :console, format: "[$level] $message\n"
@@ -121,7 +121,7 @@ config :api, ApiWeb.Endpoint,
 # Enable dev routes for dashboard and mailbox
 config :api, dev_routes: true
 
-config :api, auto_fetch_data: false
+config :api, auto_fetch_data: true
 
 # Do not include metadata nor timestamps in development logs
 config :logger, :console, format: "[$level] $message\n"

@@ -2,22 +2,24 @@ defmodule Api.Application do
   # See https://hexdocs.pm/elixir/Application.html
   # for more information on OTP Applications
   @moduledoc false
+  alias Api.Data.Store
+  alias Api.Seeder.Seeder
 
   use Application
   @auto_fetch_data Application.compile_env(:api, :auto_fetch_data, false)
 
   @impl true
   def start(_type, _args) do
-    dbg(@auto_fetch_data)
+    # dbg(@auto_fetch_data)
 
     if @auto_fetch_data do
       Task.start(fn ->
-        Api.RickAndMortyFetcher.fetch_and_save_characters()
-        Api.RickAndMortyEpisodeFetcher.fetch_and_save_episodes()
-        Api.CharacterStore.load_data()
+        Seeder.fetch_and_save_characters()
+        Seeder.fetch_and_save_episodes()
+        Store.load_data()
       end)
     else
-      Api.CharacterStore.load_data()
+      Store.load_data()
     end
 
     children = [
