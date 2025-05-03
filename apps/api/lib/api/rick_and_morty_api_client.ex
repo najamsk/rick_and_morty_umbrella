@@ -1,21 +1,22 @@
 defmodule Api.RickAndMortyApiClient do
   @moduledoc """
-  A simple client to wrap the Rick and Morty API calls.
+  A simple client to wrap Rick and Morty API calls.
   """
 
-  def all_characters do
-    Api.Data.Store.all_characters()
-  end
+  alias Api.Data.Store
 
+  @spec all_characters() :: any()
+  def all_characters, do: Store.all_characters()
+
+  @spec get_search_options() :: map()
   def get_search_options do
     %{
-      genders: Api.Data.Store.all_genders(),
-      species: Api.Data.Store.all_species(),
-      statuses: Api.Data.Store.all_statuses()
+      genders: Store.all_genders(),
+      species: Store.all_species(),
+      statuses: Store.all_statuses()
     }
   end
 
-  def get_character(id) do
-    Api.Data.Store.get_character(id)
-  end
+  @spec get_character(integer()) :: any()
+  def get_character(id), do: Store.get_character(id)
 end

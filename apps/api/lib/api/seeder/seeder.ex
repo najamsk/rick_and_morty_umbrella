@@ -1,4 +1,8 @@
 defmodule Api.Seeder.Seeder do
+  @moduledoc """
+  This module fetches data from the Rick and Morty API and saves it to JSON files.
+  It uses HTTPoison for HTTP requests and Jason for JSON encoding/decoding.
+  """
   @api_url_character "https://rickandmortyapi.com/api/character"
   @api_url_episode "https://rickandmortyapi.com/api/episode"
   @output_file_character Path.join(:code.priv_dir(:api), "characters.json")
@@ -34,7 +38,7 @@ defmodule Api.Seeder.Seeder do
         IO.puts("Failed with HTTP code: #{code}")
         acc
 
-      {:error, reason} ->
+      {:error, _reason} ->
         # IO.inspect(reason, label: "HTTP Error")
         acc
     end

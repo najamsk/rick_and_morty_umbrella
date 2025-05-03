@@ -1,4 +1,9 @@
 defmodule Frontend.RickAndMortyImageFetcher do
+  @moduledoc """
+  This module fetches and downloads images from the Rick and Morty API.
+  It uses HTTPoison for HTTP requests and Jason for JSON encoding/decoding.
+  """
+  alias Frontend.RickAndMortyImageFetcher.Downloader
   @base_url "https://rickandmortyapi.com/api/character/avatar"
   # @save_dir Path.join(:code.priv_dir(:frontend), ["static", "images", "rick_and_morty_avatars"])
   # @save_dir Path.join(:code.priv_dir(:frontend), ["static", "images", "rick_and_morty_avatars"])
@@ -11,7 +16,7 @@ defmodule Frontend.RickAndMortyImageFetcher do
       |> Task.async_stream(
         fn id ->
           :timer.sleep(100)
-          Frontend.RickAndMortyImageFetcher.Downloader.download(id, @base_url, @save_dir)
+          Downloader.download(id, @base_url, @save_dir)
         end,
         max_concurrency: 10,
         timeout: 30_000
@@ -68,6 +73,9 @@ defmodule Frontend.RickAndMortyImageFetcher do
   end
 
   defmodule Downloader do
+    @moduledoc """
+    This module handles the downloading of images from the Rick and Morty API.
+    """
     def download(id, base_url, save_dir, retries \\ 3) do
       url = "#{base_url}/#{id}.jpeg"
       file_path = Path.join(save_dir, "#{id}.jpeg")

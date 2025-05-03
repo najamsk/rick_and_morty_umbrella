@@ -1,4 +1,7 @@
 defmodule Frontend.ApiClient do
+  @moduledoc """
+  A client for fetching character data from the Rick and Morty API.
+  """
   @api_url Application.compile_env(:frontend, :api_url, "http://localhost:4000/api/")
   def fetch_characters do
     case HTTPoison.get("#{@api_url}characters") do
@@ -46,17 +49,19 @@ defmodule Frontend.ApiClient do
   end
 
   def filter_characters(query, gender, species, status) do
-    with {:ok, data} <- fetch_characters() do
-      query_downcased = String.downcase(query || "")
+    case fetch_characters() do
+      {:ok, data} ->
+        query_downcased = String.downcase(query || "")
 
-      Enum.filter(data, fn char ->
-        String.contains?(String.downcase(char["name"]), query_downcased) and
-          (gender == "" or char["gender"] == gender) and
-          (species == "" or char["species"] == species) and
-          (status == "" or char["status"] == status)
-      end)
-    else
-      _ -> []
+        Enum.filter(data, fn char ->
+          String.contains?(String.downcase(char["name"]), query_downcased) and
+            (gender == "" or char["gender"] == gender) and
+            (species == "" or char["species"] == species) and
+            (status == "" or char["status"] == status)
+        end)
+
+      _ ->
+        []
     end
   end
 end
