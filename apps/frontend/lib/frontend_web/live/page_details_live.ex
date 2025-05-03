@@ -1,17 +1,68 @@
 defmodule FrontendWeb.PageDetailsLive do
+  @api_url "https://www.omdbapi.com/"
+  @api_key System.get_env("OMDB_API_KEY", "")
   use FrontendWeb, :live_view
 
+  defp fetch_plot(season, episode) do
+    # Construct the API URL with query parameters
+    # dbg(@api_key)
+
+    url = "#{@api_url}?t=Rick+and+Morty&&Season=#{season}&Episode=#{episode}&apikey=#{@api_key}"
+
+    # Make the HTTP GET request
+    case HTTPoison.get(url) do
+      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
+        # Parse the JSON response
+        case Jason.decode(body) do
+          {:ok, %{"Plot" => plot}} ->
+            {:ok, plot}
+
+          {:error, reason} ->
+            {:error, "Failed to parse JSON: #{inspect(reason)}"}
+        end
+
+      {:ok, %HTTPoison.Response{status_code: status}} ->
+        {:error, "Unexpected status code: #{status}"}
+
+      {:error, %HTTPoison.Error{reason: reason}} ->
+        {:error, "HTTP request failed: #{inspect(reason)}"}
+    end
+  end
+
   def mount(%{"id" => id}, _session, socket) do
-    if connected?(socket), do: send(self(), {:load_character, id})
+    if connected?(socket) and id != nil and id != "" do
+      send(self(), {:load_character, id})
+    end
+
     {:ok, assign(socket, page_title: "Character Details", character: %{}, error: nil)}
   end
 
   def handle_info({:load_character, id}, socket) do
     case Frontend.ApiClient.fetch_character(id) do
       {:ok, data} ->
+        # Parse the season and episode from the "episode" string
+        episodes =
+          Enum.map(data["episode"], fn episode ->
+            %{"season" => season_number, "episode" => episode_number} =
+              Regex.named_captures(~r/S(?<season>\d+)E(?<episode>\d+)/, episode["episode"])
+
+            case fetch_plot(season_number, episode_number) do
+              {:ok, plot} ->
+                Map.put(episode, "plot", plot)
+
+              {:error, _error_message} ->
+                episode
+            end
+          end)
+
+        # update data with episodes that have plot now
+        data = Map.put(data, "episode", episodes)
+        dbg(data)
+
         {:noreply, assign(socket, character: data)}
 
       {:error, error_message} ->
+        IO.puts("Error fetching character: #{error_message}")
         {:noreply, assign(socket, error: error_message)}
     end
   end
@@ -59,6 +110,9 @@ defmodule FrontendWeb.PageDetailsLive do
                 </p>
                 <p class="info text-gray-500">
                   <strong class="font-bold"> {episode["episode"]}</strong>, {episode["air_date"]}
+                </p>
+                <p>
+                  {episode["plot"]}
                 </p>
               </li>
             <% end %>
