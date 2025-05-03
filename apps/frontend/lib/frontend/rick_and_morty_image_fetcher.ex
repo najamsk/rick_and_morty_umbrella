@@ -69,6 +69,7 @@ defmodule Frontend.RickAndMortyImageFetcher do
 
       {:error, reason} ->
         IO.puts(reason, label: "Failed to fetch total characters")
+        0
     end
   end
 
