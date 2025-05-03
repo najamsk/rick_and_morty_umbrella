@@ -28,7 +28,7 @@ As the name suggests, it serves the UI to users with a characters list that can 
 ## Screenshots
 
 ![List Characters](readme/1list.png "List Characters")  
-![Details](readme/1details.png "Details")
+![Details](readme/2details.png "Details")
 
 ## Installation & Run
 
