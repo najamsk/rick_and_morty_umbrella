@@ -41,7 +41,7 @@ defmodule FrontendWeb.PageDetailsLive do
     case Frontend.ApiClient.fetch_character(id) do
       {:ok, data} ->
         # Parse the season and episode from the "episode" string
-        dbg(data)
+        # dbg(data)
         send(self(), {:load_character_episodes, data})
         {:noreply, assign(socket, character: data)}
 
@@ -70,7 +70,7 @@ defmodule FrontendWeb.PageDetailsLive do
 
     # update data with episodes that have plot now
     character = Map.put(character, "episode", episodes)
-    dbg(character)
+    # dbg(character)
     {:noreply, assign(socket, character: character)}
   end
 
@@ -119,7 +119,7 @@ defmodule FrontendWeb.PageDetailsLive do
                   <strong class="font-bold">{episode["episode"]}</strong> @{episode["air_date"]}
                 </p>
                 <%= if episode["plot"] do %>
-                  <p class="text-gray-500 text-xl">
+                  <p class="text-gray-500 text-xl  leading-6">
                     {episode["plot"]}
                   </p>
                 <% else %>

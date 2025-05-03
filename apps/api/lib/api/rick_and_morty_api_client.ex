@@ -4,18 +4,18 @@ defmodule Api.RickAndMortyApiClient do
   """
 
   def all_characters do
-    Api.CharacterStore.all_characters()
+    Api.Data.Store.all_characters()
   end
 
   def get_search_options do
     %{
-      genders: Api.CharacterStore.all_genders(),
-      species: Api.CharacterStore.all_species(),
-      statuses: Api.CharacterStore.all_statuses()
+      genders: Api.Data.Store.all_genders(),
+      species: Api.Data.Store.all_species(),
+      statuses: Api.Data.Store.all_statuses()
     }
   end
 
   def get_character(id) do
-    Api.CharacterStore.get_character(id)
+    Api.Data.Store.get_character(id)
   end
 end

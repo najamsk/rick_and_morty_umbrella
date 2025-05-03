@@ -12,12 +12,14 @@ defmodule Api.Application do
 
     if @auto_fetch_data do
       Task.start(fn ->
-        Api.RickAndMortyFetcher.fetch_and_save_characters()
-        Api.RickAndMortyEpisodeFetcher.fetch_and_save_episodes()
-        Api.CharacterStore.load_data()
+        Api.Seeder.Seeder.fetch_and_save_characters()
+        Api.Seeder.Seeder.fetch_and_save_episodes()
+        # Api.RickAndMortyFetcher.fetch_and_save_characters()
+        # Api.RickAndMortyEpisodeFetcher.fetch_and_save_episodes()
+        Api.Data.Store.load_data()
       end)
     else
-      Api.CharacterStore.load_data()
+      Api.Data.Store.load_data()
     end
 
     children = [

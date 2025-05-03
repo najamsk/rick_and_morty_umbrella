@@ -1,8 +1,6 @@
-defmodule Api.CharacterStore do
+defmodule Api.Data.Store do
   @moduledoc "Loads and caches character data from JSON file"
-  alias Api.CharacterStore
 
-  # @key :characters_cache
   @species_key :species_cache
   @genders_key :genders_cache
   @statuses_key :statuses_cache
@@ -52,10 +50,6 @@ defmodule Api.CharacterStore do
     :ok
   end
 
-  # def all_characters_old do
-  #   :persistent_term.get(@key)
-  # end
-
   def all_characters do
     :persistent_term.get(@characters_key, %{})
     |> Map.values()
@@ -79,12 +73,12 @@ defmodule Api.CharacterStore do
         |> String.to_integer()
       end)
 
-    episodes = CharacterStore.get_episodes_by_ids(ids_list)
+    episodes = get_episodes_by_ids(ids_list)
 
     Map.put(character, "episode", episodes)
   end
 
-  def get_episodes_by_ids(ids) do
+  defp get_episodes_by_ids(ids) do
     episodes = :persistent_term.get(@episodes_key, %{})
 
     result =
