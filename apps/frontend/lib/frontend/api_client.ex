@@ -49,19 +49,21 @@ defmodule Frontend.ApiClient do
   end
 
   def filter_characters(query, gender, species, status) do
-    case fetch_characters() do
-      {:ok, data} ->
-        query_downcased = String.downcase(query || "")
+    case HTTPoison.get(
+           @api_url <>
+             "/characters/search?query=#{query}&gender=#{gender}&species=#{species}&status=#{status}"
+         ) do
+      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
+        case Jason.decode(body) do
+          {:ok, data} -> data
+          {:error, _} -> {:error, "Error decoding JSON"}
+        end
 
-        Enum.filter(data, fn char ->
-          String.contains?(String.downcase(char["name"]), query_downcased) and
-            (gender == "" or char["gender"] == gender) and
-            (species == "" or char["species"] == species) and
-            (status == "" or char["status"] == status)
-        end)
+      {:ok, %HTTPoison.Response{status_code: status}} ->
+        {:error, "Unexpected status code: #{status}"}
 
-      _ ->
-        []
+      {:error, reason} ->
+        {:error, "Error fetching characters: #{inspect(reason)}"}
     end
   end
 end
