@@ -2,12 +2,18 @@ defmodule FrontendWeb.PageDetailsLive do
   @api_url "https://www.omdbapi.com/"
   @api_key System.get_env("OMDB_API_KEY", "")
   use FrontendWeb, :live_view
+  require Logger
 
   defp fetch_plot(season, episode) do
     # Construct the API URL with query parameters
-    # dbg(@api_key)
+    params = %{
+      "t" => "Rick and Morty",
+      "Season" => season,
+      "Episode" => episode,
+      "apikey" => @api_key
+    }
 
-    url = "#{@api_url}?t=Rick+and+Morty&&Season=#{season}&Episode=#{episode}&apikey=#{@api_key}"
+    url = "#{@api_url}?#{URI.encode_query(params)}"
 
     # Make the HTTP GET request
     case HTTPoison.get(url) do
@@ -17,63 +23,89 @@ defmodule FrontendWeb.PageDetailsLive do
           {:ok, %{"Plot" => plot}} ->
             {:ok, plot}
 
+          {:ok, _} ->
+            {:error, "Plot not found in response"}
+
           {:error, reason} ->
             {:error, "Failed to parse JSON: #{inspect(reason)}"}
         end
 
       {:ok, %HTTPoison.Response{status_code: status}} ->
+        Logger.error("Unexpected status code: #{status}")
         {:error, "Unexpected status code: #{status}"}
 
       {:error, %HTTPoison.Error{reason: reason}} ->
+        Logger.error("HTTP request failed: #{reason}")
         {:error, "HTTP request failed: #{inspect(reason)}"}
     end
   end
 
   def mount(%{"id" => id}, _session, socket) do
-    if connected?(socket) and id != nil and id != "" do
+    if connected?(socket) and id not in [nil, ""] do
       send(self(), {:load_character, id})
     end
 
-    {:ok, assign(socket, page_title: "Character Details", character: nil, error: nil)}
+    {:ok,
+     assign(socket, %{
+       page_title: "Character Details",
+       character: nil,
+       error: nil
+     })}
   end
 
   def handle_info({:load_character, id}, socket) do
     case Frontend.ApiClient.fetch_character(id) do
       {:ok, data} ->
         # Parse the season and episode from the "episode" string
-        if data != %{} do
-          send(self(), {:load_character_episodes, data})
-        end
+        send(self(), {:load_character_episodes, data})
 
         {:noreply, assign(socket, character: data)}
 
       {:error, error_message} ->
-        IO.puts("Error fetching character: #{error_message}")
+        Logger.error("Error fetching character: #{error_message}")
         {:noreply, assign(socket, error: error_message)}
     end
   end
 
   def handle_info({:load_character_episodes, character}, socket) do
-    # Process.sleep(10_000)
-
     episodes =
-      Enum.map(character["episode"], fn episode ->
-        %{"season" => season_number, "episode" => episode_number} =
-          Regex.named_captures(~r/S(?<season>\d+)E(?<episode>\d+)/, episode["episode"])
+      character["episode"]
+      |> Task.async_stream(
+        fn episode ->
+          case Regex.named_captures(~r/S(?<season>\d+)E(?<episode>\d+)/, episode["episode"]) do
+            %{"season" => season_number, "episode" => episode_number} ->
+              case fetch_plot(season_number, episode_number) do
+                {:ok, plot} ->
+                  Map.put(episode, "plot", plot)
 
-        case fetch_plot(season_number, episode_number) do
-          {:ok, plot} ->
-            Map.put(episode, "plot", plot)
+                {:error, error_message} ->
+                  Logger.warning(
+                    "Failed to fetch plot for S#{season_number}E#{episode_number}: #{error_message}"
+                  )
 
-          {:error, _error_message} ->
-            episode
-        end
+                  episode
+              end
+
+            nil ->
+              Logger.error("Failed to parse season/episode from #{episode["episode"]}")
+              episode
+          end
+        end,
+        max_concurrency: 5,
+        timeout: 10_000
+      )
+      |> Enum.map(fn
+        {:ok, result} ->
+          result
+
+        {:exit, reason} ->
+          Logger.error("Task failed with reason: #{inspect(reason)}")
+          %{}
       end)
 
     # update data with episodes that have plot now
-    character = Map.put(character, "episode", episodes)
-    # dbg(character)
-    {:noreply, assign(socket, character: character)}
+    updated_character = Map.put(character, "episode", episodes)
+    {:noreply, assign(socket, character: updated_character)}
   end
 
   def render(assigns) do
@@ -142,9 +174,9 @@ defmodule FrontendWeb.PageDetailsLive do
         <p>Loading character details...</p>
       <% end %>
     <% end %>
-    <%!-- <pre>
+    <pre>
       <%= inspect(@character, pretty: true) %>
-    </pre> --%>
+    </pre>
     """
   end
 end
