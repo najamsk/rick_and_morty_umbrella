@@ -46,6 +46,7 @@ defmodule Frontend.ApiClient do
   end
 
   def filter_characters(query, gender, species, status) do
+    # TODO: user inputs or filter should be passed to api and filtered results should come from there
     case fetch_characters() do
       {:ok, data} ->
         filtered =

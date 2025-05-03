@@ -38,6 +38,17 @@ Clone the repo, then in your terminal, open the root of the project and run:
 mix deps.get
 ```
 
+We are using https://www.omdbapi.com/ to fetch episode plots and this site requires api key. Sign up there for free key and then pass that on using environment variable. 
+
+
+```
+#bash 
+export OMDB_API_KEY=8XXXXX
+
+#fish
+set -x OMDB_API_KEY 8XXXX
+```
+
 To run the frontend and API from the root, execute the following:
 
 ```bash
@@ -58,7 +69,7 @@ Cookie= mycookie
 
 - [X] API and FrontEnd both should have a config boolean setting like auto download to fetch data (json+images) form rick and morty api. Default will be false since repo has characters.json and images already.
 - [X] Fetching data from rick and morty api and loading data into persistent_term should be call independently form application start function. So if we don't want to get new data we can read data from json file into persistent_term and serve from there.
-- [ ] May be show number of episodes and list of episodes on character details screen.
+- [X] show list of episodes on character details screen.
 
 ## Support
 <a href="https://www.buymeacoffee.com/najamsk" target="_blank">
