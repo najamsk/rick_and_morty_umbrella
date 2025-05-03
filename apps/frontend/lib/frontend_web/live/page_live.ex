@@ -28,7 +28,6 @@ defmodule FrontendWeb.PageLive do
     Frontend.ReverseGeocoding.fetch_city_and_country(lat, lon)
     |> case do
       {:ok, %{city: city, country: country}} ->
-        # IO.puts("City: #{city}, Country: #{country}")
         {:noreply, assign(socket, location: %{country: country, city: city})}
 
       {:error, reason} ->
@@ -43,15 +42,20 @@ defmodule FrontendWeb.PageLive do
         %{"query" => query, "gender" => gender, "species" => species, "status" => status},
         socket
       ) do
-    res = ApiClient.filter_characters(query, gender, species, status)
+    res =
+      case ApiClient.filter_characters(query, gender, species, status) do
+        {:ok, res} -> res
+        {:error, _error_message} -> []
+      end
 
     socket =
-      socket
-      |> assign(:characters, res)
-      |> assign(:query, query)
-      |> assign(:gender, gender)
-      |> assign(:species, species)
-      |> assign(:status, status)
+      assign(socket, %{
+        characters: res,
+        query: query,
+        gender: gender,
+        species: species,
+        status: status
+      })
 
     {:noreply, socket}
   end
