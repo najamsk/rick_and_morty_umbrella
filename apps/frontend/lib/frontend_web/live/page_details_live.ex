@@ -14,6 +14,7 @@ defmodule FrontendWeb.PageDetailsLive do
     }
 
     url = "#{@api_url}?#{URI.encode_query(params)}"
+    # dbg(params)
 
     # Make the HTTP GET request
     case HTTPoison.get(url) do
