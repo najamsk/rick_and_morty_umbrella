@@ -40,6 +40,13 @@ defmodule Frontend.PlotStore.Store do
     GenServer.call(__MODULE__, {:list_plot})
   end
 
+  @doc """
+  Clears all plots from the server, resetting the state to an empty map.
+  """
+  def clear_plots() do
+    GenServer.call(__MODULE__, :clear_plots)
+  end
+
   # Server Callbacks
 
   @impl true
@@ -68,5 +75,10 @@ defmodule Frontend.PlotStore.Store do
   @impl true
   def handle_call({:list_plot}, _from, state) do
     {:reply, {:ok, state}, state}
+  end
+
+  @impl true
+  def handle_call(:clear_plots, _from, _state) do
+    {:reply, :ok, %{}}
   end
 end

@@ -1,43 +1,18 @@
 defmodule FrontendWeb.PageDetailsLive do
-  @api_url "https://www.omdbapi.com/"
-  @api_key System.get_env("OMDB_API_KEY", "")
+  # @api_key System.get_env("OMDB_API_KEY", "")
   use FrontendWeb, :live_view
   require Logger
+  alias Frontend.ApiClient
 
   defp fetch_plot(season, episode) do
     # Construct the API URL with query parameters
-    params = %{
-      "t" => "Rick and Morty",
-      "Season" => season,
-      "Episode" => episode,
-      "apikey" => @api_key
-    }
 
-    url = "#{@api_url}?#{URI.encode_query(params)}"
-    # dbg(params)
+    case ApiClient.fetch_plot(season, episode) do
+      {:ok, %{"Plot" => plot}} ->
+        {:ok, plot}
 
-    # Make the HTTP GET request
-    case HTTPoison.get(url) do
-      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
-        # Parse the JSON response
-        case Jason.decode(body) do
-          {:ok, %{"Plot" => plot}} ->
-            {:ok, plot}
-
-          {:ok, _} ->
-            {:error, "Plot not found in response"}
-
-          {:error, reason} ->
-            {:error, "Failed to parse JSON: #{inspect(reason)}"}
-        end
-
-      {:ok, %HTTPoison.Response{status_code: status}} ->
-        Logger.error("Unexpected status code: #{status}")
-        {:error, "Unexpected status code: #{status}"}
-
-      {:error, %HTTPoison.Error{reason: reason}} ->
-        Logger.error("HTTP request failed: #{reason}")
-        {:error, "HTTP request failed: #{inspect(reason)}"}
+      {:ok, _} ->
+        {:error, "Plot not found"}
     end
   end
 
