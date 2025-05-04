@@ -13,7 +13,8 @@ defmodule Frontend.Application do
 
     if @auto_fetch_data do
       Task.start(fn ->
-        Frontend.RickAndMortyImageFetcher.download_all_images()
+        # Frontend.RickAndMortyImageFetcher.download_all_images()
+        Frontend.Seeder.Seeder.download_all_images()
       end)
     end
 
@@ -24,6 +25,7 @@ defmodule Frontend.Application do
       # {Phoenix.PubSub, name: Api.PubSub},
       # Start the Finch HTTP client for sending emails
       {Finch, name: Frontend.Finch},
+      {Frontend.PlotStore.Store, %{}},
       # Start a worker by calling: Frontend.Worker.start_link(arg)
       # {Frontend.Worker, arg},
       # Start to serve requests, typically the last entry

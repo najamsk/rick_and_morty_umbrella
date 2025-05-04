@@ -21,8 +21,6 @@ defmodule Frontend.ReverseGeocoding do
 
     case HTTPoison.get(url, [], follow_redirect: true) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
-        # dbg(body)
-
         case Jason.decode(body) do
           {:ok, %{"address" => %{"city" => city, "country" => country}}} ->
             {:ok, %{city: city, country: country}}
