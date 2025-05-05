@@ -2,7 +2,6 @@ defmodule Api.Application do
   # See https://hexdocs.pm/elixir/Application.html
   # for more information on OTP Applications
   @moduledoc false
-  require Logger
   alias Api.Data.Store
   alias Api.Seeder.Seeder
   alias Api.Seeder.Plot
@@ -17,13 +16,9 @@ defmodule Api.Application do
     if @auto_fetch_data do
       Task.start(fn ->
         Seeder.fetch_and_save_characters()
-        Logger.info("Characters fetched and saved.")
         Seeder.fetch_and_save_episodes()
-        Logger.info("Episodes fetched and saved.")
         Plot.fetch_all_episode_details()
-        Logger.info("Episode details fetched and saved.")
         Store.load_data()
-        Logger.info("Data loaded")
       end)
     else
       Store.load_data()

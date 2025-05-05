@@ -32,4 +32,8 @@ defmodule Api.RickAndMortyApiClient do
 
   @spec get_character(integer()) :: any()
   def get_character(id), do: Store.get_character(id)
+
+  def get_plots_by_ids(ids) do
+    Store.get_plots_by_ids(ids)
+  end
 end

@@ -6,6 +6,7 @@ defmodule Api.Data.Store do
   @statuses_key :statuses_cache
   @characters_key :characters_map_cache
   @episodes_key :episodes_map_cache
+  @plots_key :plots_map_cache
 
   def load_data do
     # characters =
@@ -29,6 +30,14 @@ defmodule Api.Data.Store do
         _ -> []
       end
 
+    plots =
+      with {:ok, content} <- File.read(Application.app_dir(:api, "priv/plots.json")),
+           {:ok, data} <- Jason.decode(content) do
+        data
+      else
+        _ -> %{}
+      end
+
     # dbg(characters)
 
     # :persistent_term.put(@key, characters)
@@ -38,6 +47,7 @@ defmodule Api.Data.Store do
     episode_map = Map.new(episodes, fn episode -> {episode["id"], episode} end)
     :persistent_term.put(@characters_key, character_map)
     :persistent_term.put(@episodes_key, episode_map)
+    :persistent_term.put(@plots_key, plots)
 
     species =
       characters
@@ -107,6 +117,18 @@ defmodule Api.Data.Store do
       end)
 
     Map.values(result)
+  end
+
+  def get_plots_by_ids(ids) when is_list(ids) do
+    # Fetch the entire cache
+    plots_map = :persistent_term.get(@plots_key, %{})
+
+    Enum.reduce(ids, %{}, fn id, acc ->
+      case Map.get(plots_map, id) do
+        nil -> acc
+        value -> Map.put(acc, id, value)
+      end
+    end)
   end
 
   def all_species do

@@ -13,6 +13,7 @@ defmodule ApiWeb.Router do
         :search
 
     get "/characters", CharacterController, :index
+    get "/plots/:ids", CharacterController, :get_plots
     get "/search_options", CharacterController, :search_options
     get "/characters/:id", CharacterController, :show
   end

@@ -15,9 +15,9 @@ defmodule Api.Seeder.Plot do
           {:ok, episodes} when is_list(episodes) ->
             Enum.map(episodes, fn episode ->
               %{
-                "air_date" => Map.get(episode, "air_date"),
-                "episode" => Map.get(episode, "episode"),
-                "name" => Map.get(episode, "name")
+                # "air_date" => Map.get(episode, "air_date"),
+                # "name" => Map.get(episode, "name"),
+                "episode" => Map.get(episode, "episode")
               }
             end)
 

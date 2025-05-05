@@ -47,6 +47,13 @@ defmodule Frontend.ApiClient do
     |> handle_api_response("Error fetching character")
   end
 
+  def fetch_plots_by_ids(ids) do
+    "plots/#{ids}"
+    |> build_url()
+    |> HTTPoison.get()
+    |> handle_api_response("Error fetching plots")
+  end
+
   def fetch_plot(season, episode) do
     # Get plot from GenServer
     case Store.get_plot("#{season}_#{episode}") do

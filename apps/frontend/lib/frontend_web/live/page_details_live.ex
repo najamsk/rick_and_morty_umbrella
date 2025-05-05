@@ -16,6 +16,24 @@ defmodule FrontendWeb.PageDetailsLive do
     end
   end
 
+  defp extract_episode_ids(episodes) do
+    episodes
+    |> Enum.map(fn episode ->
+      case Regex.run(~r/^S(\d{2})E(\d{2,3})$/, episode["episode"]) do
+        [_, season, episode_num] ->
+          "#{String.to_integer(season)}-#{String.to_integer(episode_num)}"
+
+        _ ->
+          nil
+      end
+    end)
+    # Remove any nil values for invalid episode formats
+    |> Enum.reject(&is_nil/1)
+    # Join the extracted values with commas
+    |> Enum.join(",")
+  end
+
+  @impl true
   def mount(%{"id" => id}, _session, socket) do
     if connected?(socket) and id not in [nil, ""] do
       send(self(), {:load_character, id})
@@ -43,24 +61,49 @@ defmodule FrontendWeb.PageDetailsLive do
     end
   end
 
+  @impl true
   def handle_info({:load_character_episodes, character}, socket) do
+    # get comma-separated episode ids
+    episode_ids = extract_episode_ids(character["episode"])
+    # dbg(episode_ids)
+
+    # get plots for comma-separated episode ids
+    {:ok, filtered_plots} = Frontend.ApiClient.fetch_plots_by_ids(episode_ids)
+    # dbg(filtered_plots)
+
     episodes =
       character["episode"]
       |> Task.async_stream(
         fn episode ->
           case Regex.named_captures(~r/S(?<season>\d+)E(?<episode>\d+)/, episode["episode"]) do
             %{"season" => season_number, "episode" => episode_number} ->
-              case fetch_plot(season_number, episode_number) do
-                {:ok, plot} ->
-                  Map.put(episode, "plot", plot)
+              season_number_trim =
+                season_number
+                |> String.to_integer()
+                |> Integer.to_string()
 
-                {:error, error_message} ->
-                  Logger.warning(
-                    "Failed to fetch plot for S#{season_number}E#{episode_number}: #{error_message}"
-                  )
+              episode_number_trim =
+                episode_number
+                |> String.to_integer()
+                |> Integer.to_string()
 
-                  episode
-              end
+              plot_id = "#{season_number_trim}-#{episode_number_trim}"
+
+              %{"Plot" => plot, "episode" => _} = Map.get(filtered_plots, "#{plot_id}")
+
+              Map.put(episode, "plot", plot)
+
+            # case fetch_plot(season_number, episode_number) do
+            #   {:ok, plot} ->
+            #     Map.put(episode, "plot", plot)
+
+            #   {:error, error_message} ->
+            #     Logger.warning(
+            #       "Failed to fetch plot for S#{season_number}E#{episode_number}: #{error_message}"
+            #     )
+
+            #     episode
+            # end
 
             nil ->
               Logger.error("Failed to parse season/episode from #{episode["episode"]}")
@@ -84,6 +127,7 @@ defmodule FrontendWeb.PageDetailsLive do
     {:noreply, assign(socket, character: updated_character)}
   end
 
+  @impl true
   def render(assigns) do
     ~H"""
     <%= if @error do %>
