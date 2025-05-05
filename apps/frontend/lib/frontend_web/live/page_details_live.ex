@@ -1,5 +1,4 @@
 defmodule FrontendWeb.PageDetailsLive do
-  # @api_key System.get_env("OMDB_API_KEY", "")
   use FrontendWeb, :live_view
   require Logger
   alias Frontend.ApiClient
