@@ -26,6 +26,12 @@ defmodule ApiWeb.CharacterController do
     conn |> json(data)
   end
 
+  def get_plots(conn, %{"ids" => ids}) do
+    ids = String.split(ids, ",")
+    data = RickAndMortyApiClient.get_plots_by_ids(ids)
+    conn |> json(data)
+  end
+
   # GET /api/characters/:id
   def show(conn, %{"id" => id}) do
     data = RickAndMortyApiClient.get_character(id)

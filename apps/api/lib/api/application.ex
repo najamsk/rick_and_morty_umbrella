@@ -4,6 +4,7 @@ defmodule Api.Application do
   @moduledoc false
   alias Api.Data.Store
   alias Api.Seeder.Seeder
+  alias Api.Seeder.Plot
 
   use Application
   @auto_fetch_data Application.compile_env(:api, :auto_fetch_data, false)
@@ -16,6 +17,7 @@ defmodule Api.Application do
       Task.start(fn ->
         Seeder.fetch_and_save_characters()
         Seeder.fetch_and_save_episodes()
+        Plot.fetch_all_episode_details()
         Store.load_data()
       end)
     else
