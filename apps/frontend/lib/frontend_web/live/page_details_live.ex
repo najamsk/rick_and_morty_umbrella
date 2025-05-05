@@ -64,11 +64,9 @@ defmodule FrontendWeb.PageDetailsLive do
   def handle_info({:load_character_episodes, character}, socket) do
     # get comma-separated episode ids
     episode_ids = extract_episode_ids(character["episode"])
-    # dbg(episode_ids)
 
     # get plots for comma-separated episode ids
     {:ok, filtered_plots} = ApiClient.fetch_plots_by_ids(episode_ids)
-    # dbg(filtered_plots)
 
     episodes =
       character["episode"]
