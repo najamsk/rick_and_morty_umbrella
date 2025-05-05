@@ -3,17 +3,17 @@ defmodule FrontendWeb.PageDetailsLive do
   require Logger
   alias Frontend.ApiClient
 
-  defp fetch_plot(season, episode) do
-    # Construct the API URL with query parameters
+  # defp fetch_plot(season, episode) do
+  #   # Construct the API URL with query parameters
 
-    case ApiClient.fetch_plot(season, episode) do
-      {:ok, %{"Plot" => plot}} ->
-        {:ok, plot}
+  #   case ApiClient.fetch_plot(season, episode) do
+  #     {:ok, %{"Plot" => plot}} ->
+  #       {:ok, plot}
 
-      {:ok, _} ->
-        {:error, "Plot not found"}
-    end
-  end
+  #     {:ok, _} ->
+  #       {:error, "Plot not found"}
+  #   end
+  # end
 
   defp extract_episode_ids(episodes) do
     episodes
@@ -47,7 +47,7 @@ defmodule FrontendWeb.PageDetailsLive do
   end
 
   def handle_info({:load_character, id}, socket) do
-    case Frontend.ApiClient.fetch_character(id) do
+    case ApiClient.fetch_character(id) do
       {:ok, data} ->
         # Parse the season and episode from the "episode" string
         send(self(), {:load_character_episodes, data})
@@ -67,7 +67,7 @@ defmodule FrontendWeb.PageDetailsLive do
     # dbg(episode_ids)
 
     # get plots for comma-separated episode ids
-    {:ok, filtered_plots} = Frontend.ApiClient.fetch_plots_by_ids(episode_ids)
+    {:ok, filtered_plots} = ApiClient.fetch_plots_by_ids(episode_ids)
     # dbg(filtered_plots)
 
     episodes =
