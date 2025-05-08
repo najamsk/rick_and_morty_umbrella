@@ -64,11 +64,9 @@ defmodule FrontendWeb.PageDetailsLive do
   def handle_info({:load_character_episodes, character}, socket) do
     # get comma-separated episode ids
     episode_ids = extract_episode_ids(character["episode"])
-    # dbg(episode_ids)
 
     # get plots for comma-separated episode ids
     {:ok, filtered_plots} = ApiClient.fetch_plots_by_ids(episode_ids)
-    # dbg(filtered_plots)
 
     episodes =
       character["episode"]
@@ -136,7 +134,7 @@ defmodule FrontendWeb.PageDetailsLive do
         <%= if @character == %{} do %>
           <p style="color:red;">Character Not found!</p>
         <% else %>
-          <div class="w-full lg:max-w-3xl flex border-r border-b border-l border-gray-400  lg:border-l-0 lg:border-t lg:border-gray-400 shadow-lg mx-auto mb-10">
+          <div class="w-full lg:max-w-3xl flex border-r border-b border-l border-t border-gray-400 lg:border-l-0  lg:border-gray-400 shadow-lg mx-auto mb-10">
             <div
               class="h-100 w-48 lg:h-auto lg:w-48 bg-cover rounded-t lg:rounded-t-none lg:rounded-l text-center overflow-hidden"
               style={"background-image: url('/images/rick_and_morty_avatars/#{to_string(@character["id"])}.jpeg');"}

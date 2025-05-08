@@ -19,8 +19,8 @@ defmodule Frontend.ReverseGeocoding do
   def fetch_city_and_country(lat, lon) when is_float(lat) and is_float(lon) do
     url = "#{@base_url}?lat=#{lat}&lon=#{lon}&format=json"
 
-    case HTTPoison.get(url, [], follow_redirect: true) do
-      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
+    case Req.get(url, follow_redirect: true) do
+      {:ok, %Req.Response{status: 200, body: body}} ->
         case Jason.decode(body) do
           {:ok, %{"address" => %{"city" => city, "country" => country}}} ->
             {:ok, %{city: city, country: country}}
@@ -29,17 +29,17 @@ defmodule Frontend.ReverseGeocoding do
             {:ok, %{city: nil, country: country}}
 
           {:error, reason} ->
-            {:error, "Failed to parse JSON: #{reason}"}
+            {:error, "Failed to parse JSON: #{inspect(reason)}"}
 
           _ ->
             {:error, "Unexpected response structure"}
         end
 
-      {:ok, %HTTPoison.Response{status_code: status_code}} ->
+      {:ok, %Req.Response{status: status_code}} ->
         {:error, "HTTP request failed with status code #{status_code}"}
 
-      {:error, %HTTPoison.Error{reason: reason}} ->
-        {:error, "HTTP request error: #{reason}"}
+      {:error, reason} ->
+        {:error, "HTTP request error: #{inspect(reason)}"}
     end
   end
 

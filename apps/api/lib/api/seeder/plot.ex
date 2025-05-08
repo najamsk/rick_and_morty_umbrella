@@ -5,9 +5,6 @@ defmodule Api.Seeder.Plot do
   @output_file_plot Path.join(:code.priv_dir(:api), "plots.json")
   @file_episode Path.join(:code.priv_dir(:api), "episodes.json")
 
-  # 10 seconds per HTTP request
-  @http_timeout 10_000
-
   def load_episodes do
     case File.read(@file_episode) do
       {:ok, content} ->
@@ -48,18 +45,16 @@ defmodule Api.Seeder.Plot do
     url =
       "#{@omdb_api_url}?t=Rick+and+Morty&Season=#{season}&Episode=#{episode}&apikey=#{api_key}"
 
-    case HTTPoison.get(url, [], timeout: @http_timeout, recv_timeout: @http_timeout) do
-      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
-        case Jason.decode(body) do
-          {:ok, %{"Plot" => plot}} when is_binary(plot) -> plot
-          {:ok, _} -> "No plot available"
-          {:error, reason} -> {:error, "Failed to decode JSON: #{inspect(reason)}"}
-        end
+    # case Req.get(url, timeout: @http_timeout, receive_timeout: @http_timeout) do
+    case Req.get(url) do
+      {:ok, %Req.Response{status: 200, body: body}} ->
+        %{"Plot" => plot} = body
+        plot
 
-      {:ok, %HTTPoison.Response{status_code: status_code}} ->
+      {:ok, %Req.Response{status: status_code}} ->
         {:error, "HTTP request failed with status code #{status_code}"}
 
-      {:error, %HTTPoison.Error{reason: reason}} ->
+      {:error, reason} ->
         {:error, "HTTP request failed: #{inspect(reason)}"}
     end
   end
