@@ -21,19 +21,8 @@ defmodule Frontend.ReverseGeocoding do
 
     case Req.get(url, follow_redirect: true) do
       {:ok, %Req.Response{status: 200, body: body}} ->
-        case Jason.decode(body) do
-          {:ok, %{"address" => %{"city" => city, "country" => country}}} ->
-            {:ok, %{city: city, country: country}}
-
-          {:ok, %{"address" => %{"country" => country}}} ->
-            {:ok, %{city: nil, country: country}}
-
-          {:error, reason} ->
-            {:error, "Failed to parse JSON: #{inspect(reason)}"}
-
-          _ ->
-            {:error, "Unexpected response structure"}
-        end
+        %{"address" => %{"city" => city, "country" => country}} = body
+        {:ok, %{city: city, country: country}}
 
       {:ok, %Req.Response{status: status_code}} ->
         {:error, "HTTP request failed with status code #{status_code}"}
