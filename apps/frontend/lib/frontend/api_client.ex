@@ -11,14 +11,24 @@ defmodule Frontend.ApiClient do
   # Private helper to handle HTTP response and JSON decoding
   defp handle_api_response(response, error_message) do
     case response do
-      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
-        case Jason.decode(body) do
-          {:ok, data} when data != [] -> {:ok, data}
-          {:ok, []} -> {:error, "No data"}
-          {:error, _} -> {:error, "Error decoding JSON"}
-        end
+      {:ok, %Req.Response{status: 200, body: body}} ->
+        # dbg(body, label: "API Response Body")
 
-      {:ok, %HTTPoison.Response{status_code: status}} ->
+        {:ok, body}
+
+      # case Jason.decode(body) do
+      #   {:ok, data} when data != [] ->
+      #     dbg(data, label: "API Response")
+      #     {:ok, data}
+
+      #   {:ok, []} ->
+      #     {:error, "No data"}
+
+      #   {:error, _} ->
+      #     {:error, "Error decoding JSON"}
+      # end
+
+      {:ok, %Req.Response{status: status}} ->
         {:error, "Unexpected status code: #{status}"}
 
       {:error, reason} ->
@@ -29,28 +39,28 @@ defmodule Frontend.ApiClient do
   def fetch_characters do
     "characters"
     |> build_url()
-    |> HTTPoison.get()
+    |> Req.get()
     |> handle_api_response("Error fetching characters")
   end
 
   def search_options do
     "search_options"
     |> build_url()
-    |> HTTPoison.get()
+    |> Req.get()
     |> handle_api_response("Error fetching search options")
   end
 
   def fetch_character(id) do
     "characters/#{id}"
     |> build_url()
-    |> HTTPoison.get()
+    |> Req.get()
     |> handle_api_response("Error fetching character")
   end
 
   def fetch_plots_by_ids(ids) do
     "plots/#{ids}"
     |> build_url()
-    |> HTTPoison.get()
+    |> Req.get()
     |> handle_api_response("Error fetching plots")
   end
 
@@ -88,7 +98,7 @@ defmodule Frontend.ApiClient do
 
           res =
             api_plot_url
-            |> HTTPoison.get([], timeout: 5_000, recv_timeout: 10_000)
+            |> Req.get()
             |> handle_api_response("Error fetching plot")
 
           case res do
@@ -127,7 +137,7 @@ defmodule Frontend.ApiClient do
       })
 
     build_url("characters/search?#{params}")
-    |> HTTPoison.get()
+    |> Req.get()
     |> handle_api_response("Error filtering characters")
   end
 end

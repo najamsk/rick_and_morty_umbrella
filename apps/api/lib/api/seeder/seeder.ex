@@ -8,6 +8,7 @@ defmodule Api.Seeder.Seeder do
   @output_file_character Path.join(:code.priv_dir(:api), "characters.json")
   @output_file_episode Path.join(:code.priv_dir(:api), "episodes.json")
   # @default_timeout Application.get_env(:api, :http_timeout, 10_000)
+  require Logger
 
   def fetch_and_save_characters do
     IO.puts("Fetching characters from Rick and Morty API...")
@@ -28,18 +29,33 @@ defmodule Api.Seeder.Seeder do
 
   defp fetch_all_character_pages(nil, acc), do: acc
 
+  # defp fetch_all_character_pages(url, acc) do
+  #   case Req.get(url, receive_timeout: 10_000) do
+  #     {:ok, %Req.Response{status: 200, body: body}} ->
+  #       %{"info" => %{"next" => next_url}, "results" => results} = Jason.decode!(body)
+  #       fetch_all_character_pages(next_url, acc ++ results)
+
+  #     {:ok, %Req.Response{status: code}} ->
+  #       Logger.error("Failed to fetch characters: HTTP code #{code}")
+  #       acc
+
+  #     {:error, reason} ->
+  #       Logger.error("Failed to fetch characters: #{inspect(reason)}")
+  #       acc
+  #   end
+  # end
   defp fetch_all_character_pages(url, acc) do
-    case HTTPoison.get(url, [], recv_timeout: 10_000) do
-      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
-        %{"info" => %{"next" => next_url}, "results" => results} = Jason.decode!(body)
+    case Req.get(url, receive_timeout: 10_000) do
+      {:ok, %Req.Response{status: 200, body: body}} ->
+        %{"info" => %{"next" => next_url}, "results" => results} = body
         fetch_all_character_pages(next_url, acc ++ results)
 
-      {:ok, %HTTPoison.Response{status_code: code}} ->
-        IO.puts("Failed with HTTP code: #{code}")
+      {:ok, %Req.Response{status: code}} ->
+        Logger.error("Failed to fetch characters: HTTP code #{code}")
         acc
 
-      {:error, _reason} ->
-        # IO.inspect(reason, label: "HTTP Error")
+      {:error, reason} ->
+        Logger.error("Failed to fetch characters: #{inspect(reason)}")
         acc
     end
   end
@@ -52,16 +68,17 @@ defmodule Api.Seeder.Seeder do
   defp fetch_all_episode_pages(nil, acc), do: Enum.reverse(acc)
 
   defp fetch_all_episode_pages(url, acc) do
-    case HTTPoison.get(url, [], recv_timeout: 10_000) do
-      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
-        %{"info" => %{"next" => next_url}, "results" => results} = Jason.decode!(body)
+    case Req.get(url, receive_timeout: 10_000) do
+      {:ok, %Req.Response{status: 200, body: body}} ->
+        %{"info" => %{"next" => next_url}, "results" => results} = body
         fetch_all_episode_pages(next_url, results ++ acc)
 
-      {:ok, %HTTPoison.Response{status_code: code}} ->
-        IO.puts("Failed with HTTP code: #{code}")
+      {:ok, %Req.Response{status: code}} ->
+        Logger.error("Failed to fetch episodes: HTTP code #{code}")
         acc
 
-      {:error, _reason} ->
+      {:error, reason} ->
+        Logger.error("Failed to fetch episodes: #{inspect(reason)}")
         acc
     end
   end
