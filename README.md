@@ -41,6 +41,13 @@ mix deps.get
 We are using https://www.omdbapi.com/ to fetch episode plots and this site requires api key. Sign up there for free key and then pass that on using environment variable. 
 
 
+Rename example.env file to .env file and set your omdbapi key there. Then run 
+
+```
+source .env
+```
+or Alternatively do following
+
 ```
 #bash 
 export OMDB_API_KEY=8XXXXX
@@ -48,6 +55,7 @@ export OMDB_API_KEY=8XXXXX
 #fish
 set -x OMDB_API_KEY 8XXXX
 ```
+
 
 To run the frontend and API from the root, execute the following:
 

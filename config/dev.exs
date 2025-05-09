@@ -122,6 +122,7 @@ config :api, ApiWeb.Endpoint,
 config :api, dev_routes: true
 
 config :api, auto_fetch_data: true
+config :api, omdb_api_key: System.get_env("OMDB_API_KEY")
 
 # Do not include metadata nor timestamps in development logs
 config :logger, :console, format: "[$level] $message\n"

@@ -41,6 +41,7 @@ defmodule Api.Seeder.Plot do
 
   def fetch_episode_details(season, episode) do
     api_key = System.get_env("OMDB_API_KEY") || ""
+    dbg(api_key)
 
     url =
       "#{@omdb_api_url}?t=Rick+and+Morty&Season=#{season}&Episode=#{episode}&apikey=#{api_key}"
