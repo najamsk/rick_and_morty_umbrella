@@ -7,12 +7,14 @@ defmodule Api.Data.Store do
   @characters_key :characters_map_cache
   @episodes_key :episodes_map_cache
   @plots_key :plots_map_cache
+  # @omdb_api_key Application.compile_env(:api, :omdb_api_key, "")
 
   def load_data do
     # characters =
     #   Application.app_dir(:api, "priv/characters.json")
     #   |> File.read!()
     #   |> Jason.decode!()
+    # dbg(@omdb_api_key)
 
     characters =
       with {:ok, content} <- File.read(Application.app_dir(:api, "priv/characters.json")),
