@@ -7,7 +7,7 @@ defmodule Api.Data.Store do
   @characters_key :characters_map_cache
   @episodes_key :episodes_map_cache
   @plots_key :plots_map_cache
-  # @omdb_api_key Application.compile_env(:api, :omdb_api_key, "")
+  require Logger
 
   def load_data do
     # dbg(@omdb_api_key)
@@ -36,10 +36,6 @@ defmodule Api.Data.Store do
         _ -> %{}
       end
 
-    # dbg(characters)
-
-    # :persistent_term.put(@key, characters)
-
     # Convert list to a map with id as key
     character_map = Map.new(characters, fn character -> {character["id"], character} end)
     episode_map = Map.new(episodes, fn episode -> {episode["id"], episode} end)
@@ -67,7 +63,7 @@ defmodule Api.Data.Store do
       |> Enum.uniq()
 
     :persistent_term.put(@statuses_key, statuses)
-    IO.puts("Loaded #{length(characters)} characters")
+    Logger.info("Loaded #{length(characters)} characters")
     :ok
   end
 
@@ -80,8 +76,6 @@ defmodule Api.Data.Store do
   def get_character(id) when is_binary(id), do: get_character(String.to_integer(id))
 
   def get_character(id) do
-    IO.puts("Getting character with id: #{id}")
-
     case :persistent_term.get(@characters_key, %{}) |> Map.get(id) do
       nil ->
         %{}
