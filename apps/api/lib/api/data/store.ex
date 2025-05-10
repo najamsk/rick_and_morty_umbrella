@@ -10,10 +10,6 @@ defmodule Api.Data.Store do
   # @omdb_api_key Application.compile_env(:api, :omdb_api_key, "")
 
   def load_data do
-    # characters =
-    #   Application.app_dir(:api, "priv/characters.json")
-    #   |> File.read!()
-    #   |> Jason.decode!()
     # dbg(@omdb_api_key)
 
     characters =
