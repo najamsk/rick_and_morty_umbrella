@@ -10,8 +10,6 @@ defmodule Api.Data.Store do
   require Logger
 
   def load_data do
-    # dbg(@omdb_api_key)
-
     characters =
       with {:ok, content} <- File.read(Application.app_dir(:api, "priv/characters.json")),
            {:ok, data} <- Jason.decode(content) do
